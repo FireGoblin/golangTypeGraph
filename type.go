@@ -13,8 +13,18 @@ func (m MasterList) lookupOrAdd(s string) *Type {
 	if ok {
 		return x
 	} else {
-		//m[s] = makeType(s) 
-		return nil
+		//m[s] = makeType(s)
+		err := makeType(s)
+		if err != nil {
+			panic("error creating type for master list")
+		}
+
+		x, ok = m[s]
+		if !ok {
+			panic("masterlist not properly associated with new type")
+		}
+
+		return x
 	}
 }
 
@@ -22,7 +32,9 @@ var (
 	typeMap MasterList
 )
 
+//---------------------------------------------
 
+const maxPointerLevel int = 5
 
 //represents any type without pointer
 type BaseType struct {
@@ -36,7 +48,7 @@ type BaseType struct {
 	//allLevels should be in order
 	//i.e: index in slice = pointerLevel of type
 	//can go up to 5 references, *****T
-	allLevels [6]*Type
+	allLevels [maxPointerLevel + 1]*Type
 }
 
 //type handles associating allLevels
@@ -65,7 +77,7 @@ func (b BaseType) maxReference() int {
 		}
 	}
 
-	return 5
+	return maxPointerLevel
 }
 
 //----------------------------------------------
@@ -94,7 +106,7 @@ func makeType(s string) error {
 		bt := makeBase(baseType)
 		retval.base = bt
 		typeMap[s] = &retval
-		bt.allLevels[0] = &retval
+		bt.addType(&retval)
 	} else {
 		b, ok := typeMap[baseType]
 		if !ok {
@@ -119,7 +131,7 @@ func makeType(s string) error {
 func makeTypeRecursive(s string, b *BaseType, pLevel int) {
 	x := Type{s, b, pLevel}
 	typeMap[s] = &x
-	b.allLevels[pLevel] = &x
+	b.addType(&x)
 
 	_, ok := typeMap[s[1:]]
 	if !ok {
@@ -148,39 +160,39 @@ func (t Type) isFunc() bool {
 	return t.String()[0:4] == "func"
 }
 
-// func (f Type) params() []*Type, error {
-// 	if !f.isFunc() {
-// 		return nil, fmt.Error("params called on non-function type")
-// 	}
+func (f Type) params() ([]*Type, error) {
+	if !f.isFunc() {
+		return nil, fmt.Errorf("params called on non-function type")
+	}
 
-// 	reg := FuncTypeParser()
-// 	results := reg.FindStringSubmatch(f.name)
+	reg := FuncTypeParser()
+	results := reg.FindStringSubmatch(f.name)
 
-// 	retval := make([]Type, 0, len(results))
+	retval := make([]*Type, 0, len(results))
 
-// 	for _, str := range strings.Split(results[1], ", ") {
-// 		retval = append(retval, typeMap.lookupOrAdd(str))
-// 	}
+	for _, str := range strings.Split(results[1], ", ") {
+		retval = append(retval, typeMap.lookupOrAdd(str))
+	}
 
-// 	return retval, nil
-// }
+	return retval, nil
+}
 
-// func (f Type) returnTypes() [](*Type), error {
-// 	if !f.isFunc() {
-// 		return nil, fmt.Error("returnTypes called on non-function type")
-// 	}
+func (f Type) returnTypes() ([]*Type, error) {
+	if !f.isFunc() {
+		return nil, fmt.Errorf("returnTypes called on non-function type")
+	}
 
-// 	reg := FuncTypeParser()
-// 	results := reg.FindStringSubmatch(f.name)
+	reg := FuncTypeParser()
+	results := reg.FindStringSubmatch(f.name)
 
-// 	retval := make([]Type, 0, len(results))
+	retval := make([]*Type, 0, len(results))
 
-// 	for _, str := range strings.Split(results[2], ", ") {
-// 		retval = append(retval, typeMap[str])
-// 	}
+	for _, str := range strings.Split(results[2], ", ") {
+		retval = append(retval, typeMap[str])
+	}
 
-// 	return retval, nil
-// }
+	return retval, nil
+}
 
 //----------------------------------
 
