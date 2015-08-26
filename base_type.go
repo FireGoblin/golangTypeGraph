@@ -9,7 +9,7 @@ type BaseType struct {
 
 	//where the BaseType's information is stored
 	//may be nil
-	node *interface{}
+	node interface{}
 
 	//allLevels should be in order
 	//i.e: index in slice = pointerLevel of type

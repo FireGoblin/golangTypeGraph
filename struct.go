@@ -1,8 +1,12 @@
 package main
 
+import . "regexp"
+
+var AnonymousStructMatcher = MustCompile(`^[^ ]$`)
+
 //A node type
 type Struct struct {
-	target BaseType
+	target *BaseType
 
 	fields []NameTypePair
 
@@ -11,4 +15,24 @@ type Struct struct {
 
 	//functions that 
 	valueReceiverFunctions []ReceiverFunction
+
+	//structs included anonymously in this struct
+	inheritedStructs []Struct
+}
+
+
+//for if struct is found as an Anonymous member of something else first
+func makeStructUnknown(b *BaseType) {
+
+}
+
+
+//possibilities for lines:
+//Type -> inheritedStruct
+//(comma seperated list of names) Type -> NameTypePairs
+func makeStruct(b *BaseType, lines []string) *Struct {
+	s := Struct{b, nil, nil, nil, nil}
+	b.node = &s
+
+	return &s
 }

@@ -4,8 +4,6 @@ import . "regexp"
 import "strings"
 import "fmt"
 
-//----------------------------------------------
-
 type Type struct {
 	name string
 	base *BaseType
@@ -71,23 +69,22 @@ func (t Type) BaseName() string {
 	return t.base.name
 }
 
-//**************
-
-func FuncTypeParser() *Regexp {
-	return MustCompile(`^func\((.*?)\) (.*)$`)
-}
-
+//***************
 func (t Type) isFunc() bool {
 	return t.String()[0:4] == "func"
 }
+//**************
+//following functions only apply to types that pass isFunc()
+//*************
+
+var FuncTypeParser = MustCompile(`^func\((.*?)\) (.*)$`)
 
 func (f Type) params() ([]*Type, error) {
 	if !f.isFunc() {
 		return nil, fmt.Errorf("params called on non-function type")
 	}
 
-	reg := FuncTypeParser()
-	results := reg.FindStringSubmatch(f.name)
+	results := FuncTypeParser.FindStringSubmatch(f.name)
 
 	retval := make([]*Type, 0, len(results))
 
@@ -103,8 +100,7 @@ func (f Type) returnTypes() ([]*Type, error) {
 		return nil, fmt.Errorf("returnTypes called on non-function type")
 	}
 
-	reg := FuncTypeParser()
-	results := reg.FindStringSubmatch(f.name)
+	results := FuncTypeParser.FindStringSubmatch(f.name)
 
 	retval := make([]*Type, 0, len(results))
 

@@ -16,4 +16,4 @@ type (
 )
 
 
-treat variadric functions like a slice of the type
+ignore variadic functions like a slice of the type
