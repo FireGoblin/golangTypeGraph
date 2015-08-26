@@ -3,8 +3,9 @@ package main
 import . "regexp"
 
 //note: does not inherit functions from inheritedFrom
+//A node type
 type RedefinedType struct {
-	target Type 
+	target BaseType 
 
 	inheritedFrom Type
 	ownFunctions []ReceiverFunction

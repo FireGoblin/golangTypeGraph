@@ -4,34 +4,6 @@ import . "regexp"
 import "strings"
 import "fmt"
 
-//only master should call creators for types
-type MasterList map[string]*Type
-
-func (m MasterList) lookupOrAdd(s string) *Type {
-	x, ok := m[s]
-
-	if ok {
-		return x
-	} else {
-		//m[s] = makeType(s)
-		err := makeType(s)
-		if err != nil {
-			panic("error creating type for master list")
-		}
-
-		x, ok = m[s]
-		if !ok {
-			panic("masterlist not properly associated with new type")
-		}
-
-		return x
-	}
-}
-
-var (
-	typeMap MasterList
-)
-
 //---------------------------------------------
 
 const maxPointerLevel int = 5
@@ -41,7 +13,7 @@ type BaseType struct {
 	//string representation of type
 	name string
 
-	//where the type's information is stored
+	//where the BaseType's information is stored
 	//may be nil
 	node *interface{}
 
@@ -147,10 +119,7 @@ func (t Type) BaseName() string {
 	return t.base.name
 }
 
-func (t Type) lookupBaseType() *BaseType {
-	tPointer := typeMap.lookupOrAdd(strings.TrimLeft(t.name, "*"))
-	return (*tPointer).base
-}
+//**************
 
 func FuncTypeParser() *Regexp {
 	return MustCompile(`^func\((.*?)\) (.*)$`)

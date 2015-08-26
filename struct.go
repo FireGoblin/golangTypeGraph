@@ -1,7 +1,8 @@
 package main
 
+//A node type
 type Struct struct {
-	target Type
+	target BaseType
 
 	fields []NameTypePair
 

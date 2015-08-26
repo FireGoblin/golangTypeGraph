@@ -6,6 +6,7 @@ Only one instance for every type in the graph
 
 limitations:
 
+ignore names of params in function
 ignore non-receiver functions for now
 ignore group type definitions
 

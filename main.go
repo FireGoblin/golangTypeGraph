@@ -1,5 +1,13 @@
 package main
 
+var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error", "float32", "float64", 
+										"int", "int8", "int16", "int32", "int64",
+										"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
+var typeMap = MasterMap(make(map[string]*Type))
+
 func main() {
-	//allTypes := make(map[string]Type)
+	//initialize master map with builtin types
+	for _, v := range builtinTypes {
+		typeMap.lookupOrAdd(v)
+	}
 }
