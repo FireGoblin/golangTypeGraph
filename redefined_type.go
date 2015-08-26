@@ -2,6 +2,8 @@ package main
 
 import . "regexp"
 
+var RedefinedTypeParser = MustCompile(`^type (.*?) (.*)$`)
+
 //note: does not inherit functions from inheritedFrom
 //A node type
 type RedefinedType struct {
@@ -9,8 +11,4 @@ type RedefinedType struct {
 
 	inheritedFrom Type
 	ownFunctions []ReceiverFunction
-}
-
-func redefinedTypeParser() *Regexp {
-	return MustCompile(`^type (.*?) (.*)$`)
 }

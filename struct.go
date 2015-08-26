@@ -5,13 +5,11 @@ import . "regexp"
 //may be removable
 var AnonymousStructParser = MustCompile(`^[^ ]+$`)
 
-var NameTypeParser = MustCompile(`^(.+?)[ ]+((?:func.+)|(?:[^ ]+))$`)
-
 //A node type
 type Struct struct {
 	target *BaseType
 
-	fields []NameTypePair
+	fields []NamedType
 
 	//receiver functions that only work with pointer to this type
 	pointerReceiverFunctions []*ReceiverFunction
@@ -29,7 +27,7 @@ type Struct struct {
 
 //for if struct is found as an Anonymous member of something else first
 func makeStructUnknown(b *BaseType, source *Struct) *Struct {
-	retval := Struct{b, make([]NameTypePair, 0), make([]*ReceiverFunction, 0), make([]*ReceiverFunction, 0), make([]*Struct, 0), make([]*Struct, 0)}
+	retval := Struct{b, make([]NamedType, 0), make([]*ReceiverFunction, 0), make([]*ReceiverFunction, 0), make([]*Struct, 0), make([]*Struct, 0)}
 	b.node = &retval
 
 	retval.includedIn = append(retval.includedIn, source)
@@ -40,13 +38,15 @@ func makeStructUnknown(b *BaseType, source *Struct) *Struct {
 
 //possibilities for lines:
 //Type -> inheritedStruct
-//(comma seperated list of names) Type -> NameTypePairs
+//(comma seperated list of names) Type -> NamedTypes
+//b: the baseType for this struct
+//lines: lines from the structs declaration block, preceeding and trailing whitespace removed
 func makeStruct(b *BaseType, lines []string) *Struct {
-	retval := Struct{b, make([]NameTypePair, 0), make([]*ReceiverFunction, 0), make([]*ReceiverFunction, 0), make([]*Struct, 0), make([]*Struct, 0)}
+	retval := Struct{b, make([]NamedType, 0), make([]*ReceiverFunction, 0), make([]*ReceiverFunction, 0), make([]*Struct, 0), make([]*Struct, 0)}
 	b.node = &retval
 
 	for _, v := range lines {
-		ntp := NameTypeParser.FindStringSubmatch(v)
+		ntp := NamedTypeParser.FindStringSubmatch(v)
 		if len(ntp) != 0 {
 
 		} else {
