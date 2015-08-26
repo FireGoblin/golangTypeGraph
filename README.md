@@ -17,3 +17,4 @@ type (
 
 
 ignore variadic functions like a slice of the type
+ignore wraparound lines
