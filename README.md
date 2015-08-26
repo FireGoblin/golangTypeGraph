@@ -3,6 +3,7 @@
 goals:
 
 Only one instance for every type in the graph
+Only one instance of every node type in graph
 
 limitations:
 
