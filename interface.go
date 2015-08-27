@@ -1,4 +1,4 @@
-package main 
+package main
 
 //A node type
 type Interface struct {
@@ -6,7 +6,7 @@ type Interface struct {
 
 	//any functions required to implement the interface
 	//does not include functions inherited indirectly through inheritedInterfaces
-	requiredFunctions []*ReceiverFunction
+	requiredFunctions []*Function
 
 	//interfaces this inherits from
 	//if not zero, is composite interface
@@ -18,7 +18,7 @@ type Interface struct {
 
 //for if interface is found as an Anonymous member of something else first
 func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
-	retval := Interface{b, make([]*ReceiverFunction, 0), make([]*Interface, 0), make([]*Interface, 0)}
+	retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0)}
 	b.node = &retval
 
 	retval.includedIn = append(retval.includedIn, source)
@@ -33,13 +33,15 @@ func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
 func makeInterface(b *BaseType, lines []string) *Interface {
-	retval := Interface{b, make([]*ReceiverFunction, 0), make([]*Interface, 0), make([]*Interface, 0)}
+	retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0)}
 	b.node = &retval
 
 	for _, v := range lines {
-		ntp := NamedTypeParser.FindStringSubmatch(v)
-		if len(ntp) != 0 {
-
+		ifp := FunctionParser.FindStringSubmatch(v)
+		if len(ifp) != 0 {
+			f := funcMap.lookupOrAdd(ifp[0])
+			f.addInterface(&retval)
+			retval.requiredFunctions = append(retval.requiredFunctions, f)
 		} else {
 			typ := typeMap.lookupOrAdd(v)
 			var interfac *Interface

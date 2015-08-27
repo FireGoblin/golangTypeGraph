@@ -11,11 +11,11 @@ type RedefinedType struct {
 
 	parent *Type
 
-	ownFunctions []*ReceiverFunction
+	ownFunctions []*Function
 }
 
 func makeRedefinedTyp(b *BaseType, s string) *RedefinedType {
-	retval := RedefinedType{b, typeMap.lookupOrAdd(s), make([]*ReceiverFunction, 0)}
+	retval := RedefinedType{b, typeMap.lookupOrAdd(s), make([]*Function, 0)}
 
 	return &retval
 }

@@ -1,6 +1,7 @@
 package main
 
 import . "regexp"
+import "strings"
 
 //may be removable
 var AnonymousStructParser = MustCompile(`^[^ ]+$`)
@@ -12,10 +13,10 @@ type Struct struct {
 	fields []NamedType
 
 	//receiver functions that only work with pointer to this type
-	pointerReceiverFunctions []*ReceiverFunction
+	pointerFunctions []*Function
 
 	//functions that 
-	valueReceiverFunctions []*ReceiverFunction
+	valueFunctions []*Function
 
 	//structs included anonymously in this struct
 	inheritedStructs []*Struct
@@ -27,7 +28,7 @@ type Struct struct {
 
 //for if struct is found as an Anonymous member of something else first
 func makeStructUnknown(b *BaseType, source *Struct) *Struct {
-	retval := Struct{b, make([]NamedType, 0), make([]*ReceiverFunction, 0), make([]*ReceiverFunction, 0), make([]*Struct, 0), make([]*Struct, 0)}
+	retval := Struct{b, make([]NamedType, 0), make([]*Function, 0), make([]*Function, 0), make([]*Struct, 0), make([]*Struct, 0)}
 	b.node = &retval
 
 	retval.includedIn = append(retval.includedIn, source)
@@ -42,13 +43,17 @@ func makeStructUnknown(b *BaseType, source *Struct) *Struct {
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
 func makeStruct(b *BaseType, lines []string) *Struct {
-	retval := Struct{b, make([]NamedType, 0), make([]*ReceiverFunction, 0), make([]*ReceiverFunction, 0), make([]*Struct, 0), make([]*Struct, 0)}
+	retval := Struct{b, make([]NamedType, 0), make([]*Function, 0), make([]*Function, 0), make([]*Struct, 0), make([]*Struct, 0)}
 	b.node = &retval
 
 	for _, v := range lines {
 		ntp := NamedTypeParser.FindStringSubmatch(v)
 		if len(ntp) != 0 {
-
+			str := strings.Split(ntp[1], ", ")
+			typ := typeMap.lookupOrAdd(ntp[2])
+			for _, s := range str {
+				retval.fields = append(retval.fields, NamedType{s, typ})
+			}
 		} else {
 			typ := typeMap.lookupOrAdd(v)
 			var struc *Struct

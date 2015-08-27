@@ -2,9 +2,9 @@ package main
 
 //master map uses singleton pattern, only one of them should be created in the program
 //only master should call creators for types
-type MasterMap map[string]*Type
+type MasterTypeMap map[string]*Type
 
-func (m MasterMap) lookupOrAdd(s string) *Type {
+func (m MasterTypeMap) lookupOrAdd(s string) *Type {
 	x, ok := m[s]
 
 	if ok {

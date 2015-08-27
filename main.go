@@ -3,7 +3,8 @@ package main
 var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error", "float32", "float64", 
 										"int", "int8", "int16", "int32", "int64",
 										"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
-var typeMap = MasterMap(make(map[string]*Type))
+var typeMap = MasterTypeMap(make(map[string]*Type))
+var funcMap = MasterFuncMap(make(map[string]*Function))
 
 func main() {
 	//initialize master map with builtin types
