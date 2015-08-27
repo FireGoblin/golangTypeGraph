@@ -16,7 +16,47 @@ type Interface struct {
 	includedIn []*Interface
 }
 
-func (i Interface) allRequiredFunctions() []*Function {
+func (i *Interface) isComposite() bool {
+	return len(i.inheritedInterfaces) > 0
+}
+
+//no mutation
+func (i *Interface) isImplementedBy(s *Struct) bool {
+	required := i.allRequiredFunctions()
+	have := s.allReceiverFunctions()
+
+	for _, v := range required {
+		found := false
+		for _, j := range have {
+			if j == v {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return false
+		}
+	}
+
+	return true
+}
+
+//filter pattern
+func (i *Interface) implementedBy(s []*Struct) []*Struct {
+	var retval []*Struct
+
+	for _, v := range s {
+		if i.isImplementedBy(v) {
+			retval = append(retval, v)
+		}
+	}
+
+	return retval
+}
+
+//no mutation
+func (i *Interface) allRequiredFunctions() []*Function {
 	retval := make([]*Function, len(i.requiredFunctions))
 	c := copy(retval, i.requiredFunctions)
 	if c != len(i.requiredFunctions) {
