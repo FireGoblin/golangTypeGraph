@@ -4,7 +4,7 @@ import . "regexp"
 
 var RedefinedTypeParser = MustCompile(`^type (.*?) (.*)$`)
 
-//note: does not inherit functions from inheritedFrom
+//note: does not inherit functions from parent
 //A node type
 type RedefinedType struct {
 	target *BaseType 

@@ -16,6 +16,20 @@ type Interface struct {
 	includedIn []*Interface
 }
 
+func (i Interface) allRequiredFunctions() []*Function {
+	retval := make([]*Function, len(i.requiredFunctions))
+	c := copy(retval, i.requiredFunctions)
+	if c != len(i.requiredFunctions) {
+		panic("copy failed in allRequiredFunctions")
+	}
+
+	for _, v := range i.inheritedInterfaces {
+		retval = append(retval, v.allRequiredFunctions()...)
+	}
+
+	return retval
+}
+
 //for if interface is found as an Anonymous member of something else first
 func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
 	retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0)}

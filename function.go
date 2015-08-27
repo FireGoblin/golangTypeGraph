@@ -42,6 +42,10 @@ func (f *Function) addInterface(i *Interface) {
 	f.interfaces = append(f.interfaces, i)
 }
 
+func (f *Function) addStruct(s *Struct) {
+	f.structs = append(f.structs, s)
+}
+
 func (f Function) isReceiverFunction() bool {
 	return len(f.structs) + len(f.interfaces) > 0
 }
