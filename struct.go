@@ -10,7 +10,7 @@ var AnonymousStructParser = MustCompile(`^[^ ]+$`)
 type Struct struct {
 	target *BaseType
 
-	//if this is set, it is a redefined type
+	//if this is not nil, it is a redefined type
 	parent *Type
 
 	//fields should only be empty when a redefined type

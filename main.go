@@ -11,4 +11,8 @@ func main() {
 	for _, v := range builtinTypes {
 		typeMap.lookupOrAdd(v)
 	}
+
+	//interfaces found
+	//interfaceList := make([]*Interface, 0)
+	//structs found := make([]*Struct, 0)
 }

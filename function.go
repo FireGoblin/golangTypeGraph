@@ -15,8 +15,7 @@ type Function struct {
 	paramTypes []*Type 
 	returnTypes []*Type
 
-	//if interface or struct is not-empty, then this is used as a receiver function
-
+	//if interface or struct is non-empty, then this is used as a receiver function
 	//all structs that implement this function
 	structs []*Struct
 
