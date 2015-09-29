@@ -9,16 +9,16 @@ limitations:
 
 ignore names of params in function
 ignore non-receiver functions for now
-ignore group type definitions
 ignore if receiver is pointer or value
 
+ignore group type declarations
 type (
 	Int int
 	Struct struct { x, y int }
 )
 
 
-ignore variadic functions like a slice of the type
+treat variadic functions like a slice of the type
 ignore wraparound lines
 
 

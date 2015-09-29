@@ -1,6 +1,6 @@
 package main
 
-const maxPointerLevel int = 5
+const maxPointerLevel int = 4
 
 //represents any type without pointer
 type BaseType struct {
@@ -13,13 +13,13 @@ type BaseType struct {
 
 	//allLevels should be in order
 	//i.e: index in slice = pointerLevel of type
-	//can go up to 5 references, *****T
+	//can go up to 5 references, ****T
 	allLevels [maxPointerLevel + 1]*Type
 }
 
 //type handles associating allLevels
-func makeBase(s string) *BaseType{
-	x := BaseType{s, nil, [6]*Type{}}
+func makeBase(s string) *BaseType {
+	x := BaseType{s, nil, [maxPointerLevel + 1]*Type{}}
 	return &x
 }
 
@@ -30,7 +30,6 @@ func (b *BaseType) addNode(n *interface{}) {
 func (b *BaseType) addType(t *Type) {
 	b.allLevels[t.pointerLevel] = t
 }
-
 
 func (b BaseType) String() string {
 	return b.name

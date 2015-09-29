@@ -12,7 +12,10 @@ type Function struct {
 	//should pass target.isFunc() == true, otherwise panic
 	target *Type
 
-	paramTypes []*Type 
+	//The types of the params to this function
+	paramTypes []*Type
+
+	//The types of the return value from this function
 	returnTypes []*Type
 
 	//if interface or struct is non-empty, then this is used as a receiver function
@@ -20,7 +23,7 @@ type Function struct {
 	structs []*Struct
 
 	//any interfaces that require this function
-	interfaces []*Interface 
+	interfaces []*Interface
 }
 
 func makeFunction(s string) *Function {
@@ -46,5 +49,5 @@ func (f *Function) addStruct(s *Struct) {
 }
 
 func (f Function) isReceiverFunction() bool {
-	return len(f.structs) + len(f.interfaces) > 0
+	return len(f.structs)+len(f.interfaces) > 0
 }

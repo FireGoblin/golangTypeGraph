@@ -12,7 +12,7 @@ type Interface struct {
 	//if not zero, is composite interface
 	inheritedInterfaces []*Interface
 
-	//interfaces this is included int
+	//interfaces this is included in
 	includedIn []*Interface
 }
 
@@ -79,7 +79,6 @@ func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
 
 	return &retval
 }
-
 
 //possibilities for lines:
 //Type -> inheritedStruct

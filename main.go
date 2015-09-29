@@ -1,10 +1,15 @@
 package main
 
+import "flag"
+//import "bufio"
+
 var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error", "float32", "float64", 
 										"int", "int8", "int16", "int32", "int64",
 										"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
 var typeMap = MasterTypeMap(make(map[string]*Type))
 var funcMap = MasterFuncMap(make(map[string]*Function))
+
+var file = flag.String("file", ".", "file to parse on")
 
 func main() {
 	//initialize master map with builtin types

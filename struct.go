@@ -16,6 +16,7 @@ type Struct struct {
 	//fields should only be empty when a redefined type
 	fields []NamedType
 
+	//receiver functions on this type
 	receiverFunctions []*Function
 
 	//structs included anonymously in this struct
@@ -71,7 +72,7 @@ func (s *Struct) interfacesImplemented(i []*Interface) []*Interface {
 			retval = append(retval, v)
 		}
 	}
-	
+
 	return retval
 }
 
@@ -116,7 +117,6 @@ func makeStructUnknown(b *BaseType, source *Struct) *Struct {
 
 	return &retval
 }
-
 
 //possibilities for lines:
 //Type -> inheritedStruct
