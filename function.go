@@ -1,8 +1,6 @@
 package main
 
-import . "regexp"
-
-var FunctionParser = MustCompile(`^([\w]+)(\(.*?\) .*)$`)
+//import . "regexp"
 
 type Function struct {
 	//name for function

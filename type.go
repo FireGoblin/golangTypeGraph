@@ -1,6 +1,6 @@
-package main 
+package main
 
-import . "regexp"
+//import . "regexp"
 import "strings"
 import "fmt"
 
@@ -33,7 +33,7 @@ func makeType(s string) error {
 		b, ok := typeMap[baseType]
 		if !ok {
 			b = typeMap.lookupOrAdd(baseType)
-		} 
+		}
 
 		retval.base = b.base
 		typeMap[s] = &retval
@@ -42,7 +42,7 @@ func makeType(s string) error {
 		//create lower type if not created yet
 		_, ok = typeMap[s[1:]]
 		if !ok {
-			makeTypeRecursive(s[1:], retval.base, pLevel - 1)
+			makeTypeRecursive(s[1:], retval.base, pLevel-1)
 		}
 	}
 
@@ -57,7 +57,7 @@ func makeTypeRecursive(s string, b *BaseType, pLevel int) {
 
 	_, ok := typeMap[s[1:]]
 	if !ok {
-		makeTypeRecursive(s[1:], b, pLevel - 1)
+		makeTypeRecursive(s[1:], b, pLevel-1)
 	}
 }
 
@@ -73,11 +73,10 @@ func (t Type) BaseName() string {
 func (t Type) isFunc() bool {
 	return t.String()[0:4] == "func"
 }
+
 //**************
 //following functions only apply to types that pass isFunc()
 //*************
-
-var FuncTypeParser = MustCompile(`^func\((.*?)\) (.*)$`)
 
 func (f Type) params() ([]*Type, error) {
 	if !f.isFunc() {

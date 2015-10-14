@@ -16,6 +16,10 @@ type Interface struct {
 	includedIn []*Interface
 }
 
+func (i *Interface) String() string {
+	return i.target.name
+}
+
 func (i *Interface) isComposite() bool {
 	return len(i.inheritedInterfaces) > 0
 }

@@ -17,8 +17,9 @@ type (
 	Struct struct { x, y int }
 )
 
-
-treat variadic functions like a slice of the type
+//ignore <- in channel declarations
+ignore vairadic functions
+//treat variadic functions like a slice of the type
 ignore wraparound lines
 
 

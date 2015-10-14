@@ -1,8 +1,6 @@
 package main
 
-import . "regexp"
-
-var NamedTypeParser = MustCompile(`^(.+?)[ ]+((?:func.+)|(?:[^ ]+))$`)
+//import . "regexp"
 
 //data type for fields/parameters.
 //A pair of the name of the variable and its type.

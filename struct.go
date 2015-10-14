@@ -1,10 +1,7 @@
 package main
 
-import . "regexp"
+//import . "regexp"
 import "strings"
-
-//may be removable
-var AnonymousStructParser = MustCompile(`^[^ ]+$`)
 
 //A node type
 type Struct struct {
@@ -24,6 +21,10 @@ type Struct struct {
 
 	//structs this type is included in anonymously
 	includedIn []*Struct
+}
+
+func (s *Struct) String() string {
+	return s.target.name
 }
 
 //no mutation
