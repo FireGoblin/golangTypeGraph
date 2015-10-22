@@ -1,6 +1,7 @@
 package main
 
 //import . "regexp"
+import "go/ast"
 
 type Function struct {
 	//name for function
@@ -22,18 +23,25 @@ type Function struct {
 
 	//any interfaces that require this function
 	interfaces []*Interface
+
+	astNode ast.FuncType
 }
 
-func makeFunction(s string) *Function {
-	reg := FunctionParser.FindStringSubmatch(s)
-	typ := typeMap.lookupOrAdd("func" + reg[2])
+func makeFunction(s string, f *ast.FuncType) *Function {
+	//FunctionParser := MustCompile(`^([\w]+)(\(.*?\) .*)$`)
+
+	//reg := FunctionParser.FindStringSubmatch(s)
+	typ := typeMap.lookupOrAdd("func" + String(f))
 	params, err := typ.params()
 	if err != nil {
-		panic("Type for function being made is not a Function type")
+		panic(err)
 	}
-	returns, _ := typ.returnTypes()
+	returns, err := typ.returnTypes()
+	if err != nil {
+		panic(err)
+	}
 
-	retval := Function{reg[1], typ, params, returns, make([]*Struct, 0), make([]*Interface, 0)}
+	retval := Function{s, typ, params, returns, make([]*Struct, 0), make([]*Interface, 0), *f}
 
 	return &retval
 }

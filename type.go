@@ -14,14 +14,12 @@ type Type struct {
 }
 
 //TODO: maybe more effecient way to do this
-func makeType(s string) error {
+func makeType(s string, pLevel int) error {
 	_, ok := typeMap[s]
 	if ok {
 		return fmt.Errorf("attempt to create already created type")
 	}
 
-	baseType := strings.TrimLeft(s, "*")
-	pLevel := len(s) - len(baseType)
 	retval := Type{s, nil, pLevel}
 
 	if pLevel == 0 {

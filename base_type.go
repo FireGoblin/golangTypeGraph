@@ -1,5 +1,7 @@
 package main
 
+import "github.com/firegoblin/gographviz"
+
 const maxPointerLevel int = 4
 
 //represents any type without pointer
@@ -8,8 +10,8 @@ type BaseType struct {
 	name string
 
 	//where the BaseType's information is stored
-	//may be nil
-	node interface{}
+	//may be nil (if it is a function type)
+	node gographviz.GraphableNode
 
 	//allLevels should be in order
 	//i.e: index in slice = pointerLevel of type
@@ -23,7 +25,7 @@ func makeBase(s string) *BaseType {
 	return &x
 }
 
-func (b *BaseType) addNode(n *interface{}) {
+func (b *BaseType) addNode(n gographviz.GraphableNode) {
 	b.node = n
 }
 

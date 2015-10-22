@@ -1,6 +1,12 @@
 package main
 
+import "go/ast"
+import "github.com/firegoblin/gographviz"
+
+//import . "regexp"
+
 //A node type
+//implements gographviz.GraphableNode
 type Interface struct {
 	target *BaseType
 
@@ -10,18 +16,47 @@ type Interface struct {
 
 	//interfaces this inherits from
 	//if not zero, is composite interface
-	inheritedInterfaces []*Interface
+	//Draw edges from these
+	inheritedInterfaces EdgeSet
 
 	//interfaces this is included in
 	includedIn []*Interface
+
+	//structs
+	//Draw edges from these
+	implementedByCache EdgeSet
+
+	extraAttrs gographviz.Attrs
+
+	astNode ast.InterfaceType
 }
 
 func (i *Interface) String() string {
 	return i.target.name
 }
 
+func (i *Interface) Name() string {
+	return i.target.name
+}
+
+//TODO: fill out
+func (i *Interface) Attrs() gographviz.Attrs {
+	return nil
+}
+
+func (i *Interface) Edges() []*gographviz.Edge {
+	var retval []*gographviz.Edge
+
+	retval = make([]*gographviz.Edge, 0, i.inheritedInterfaces.Size()+i.implementedByCache.Size())
+
+	copy(retval, i.inheritedInterfaces.Edges(i))
+	retval = append(retval, i.implementedByCache.Edges(i)...)
+
+	return retval
+}
+
 func (i *Interface) isComposite() bool {
-	return len(i.inheritedInterfaces) > 0
+	return i.inheritedInterfaces.Size() > 0
 }
 
 //no mutation
@@ -46,6 +81,13 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 	return true
 }
 
+func (i *Interface) setImplementedBy(s []*Struct) []*Struct {
+	retval := i.implementedBy(s)
+	i.implementedByCache.SetNeighbors(retval)
+
+	return retval
+}
+
 //filter pattern
 func (i *Interface) implementedBy(s []*Struct) []*Struct {
 	var retval []*Struct
@@ -67,7 +109,7 @@ func (i *Interface) allRequiredFunctions() []*Function {
 		panic("copy failed in allRequiredFunctions")
 	}
 
-	for _, v := range i.inheritedInterfaces {
+	for _, v := range i.inheritedInterfaces.neighbors {
 		retval = append(retval, v.allRequiredFunctions()...)
 	}
 
@@ -89,33 +131,36 @@ func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
 //(comma seperated list of names) Type -> NamedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func makeInterface(b *BaseType, lines []string) *Interface {
-	retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0)}
-	b.node = &retval
+func makeInterface(spec *ast.TypeSpec, typ *BaseType) *Interface {
+	// FunctionParser := MustCompile(`^([\w]+)(\(.*?\) .*)$`)
+	// retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0)}
+	// b.node = &retval
 
-	for _, v := range lines {
-		ifp := FunctionParser.FindStringSubmatch(v)
-		if len(ifp) != 0 {
-			f := funcMap.lookupOrAdd(ifp[0])
-			f.addInterface(&retval)
-			retval.requiredFunctions = append(retval.requiredFunctions, f)
-		} else {
-			typ := typeMap.lookupOrAdd(v)
-			var interfac *Interface
+	// for _, v := range lines {
+	// 	ifp := FunctionParser.FindStringSubmatch(v)
+	// 	if len(ifp) != 0 {
+	// 		f := funcMap.lookupOrAdd(ifp[0])
+	// 		f.addInterface(&retval)
+	// 		retval.requiredFunctions = append(retval.requiredFunctions, f)
+	// 	} else {
+	// 		typ := typeMap.lookupOrAdd(v)
+	// 		var interfac *Interface
 
-			if typ.base.node == nil {
-				interfac := makeInterfaceUnknown(typ.base, &retval)
-				typ.base.node = interfac
-			} else {
-				var ok bool
-				interfac, ok = typ.base.node.(*Interface)
-				if !ok {
-					panic("Could not find struct of anonymous member")
-				}
-			}
-			retval.inheritedInterfaces = append(retval.inheritedInterfaces, interfac)
-		}
-	}
+	// 		if typ.base.node == nil {
+	// 			interfac := makeInterfaceUnknown(typ.base, &retval)
+	// 			typ.base.node = interfac
+	// 		} else {
+	// 			var ok bool
+	// 			interfac, ok = typ.base.node.(*Interface)
+	// 			if !ok {
+	// 				panic("Could not find struct of anonymous member")
+	// 			}
+	// 		}
+	// 		retval.inheritedInterfaces = append(retval.inheritedInterfaces, interfac)
+	// 	}
+	// }
 
-	return &retval
+	// return &retval
+
+	return nil
 }
