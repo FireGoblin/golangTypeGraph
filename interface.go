@@ -17,18 +17,18 @@ type Interface struct {
 	//interfaces this inherits from
 	//if not zero, is composite interface
 	//Draw edges from these
-	inheritedInterfaces EdgeSet
+	inheritedInterfaces []*Interface
 
 	//interfaces this is included in
 	includedIn []*Interface
 
 	//structs
 	//Draw edges from these
-	implementedByCache EdgeSet
+	implementedByCache []*Struct
 
 	extraAttrs gographviz.Attrs
 
-	astNode ast.InterfaceType
+	astNode *ast.InterfaceType
 }
 
 func (i *Interface) String() string {
@@ -47,16 +47,22 @@ func (i *Interface) Attrs() gographviz.Attrs {
 func (i *Interface) Edges() []*gographviz.Edge {
 	var retval []*gographviz.Edge
 
-	retval = make([]*gographviz.Edge, 0, i.inheritedInterfaces.Size()+i.implementedByCache.Size())
+	retval = make([]*gographviz.Edge, 0, len(i.inheritedInterfaces)+len(i.implementedByCache))
 
-	copy(retval, i.inheritedInterfaces.Edges(i))
-	retval = append(retval, i.implementedByCache.Edges(i)...)
+	for _, v := range i.inheritedInterfaces {
+		//TODO: decide on attrs
+		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, nil})
+	}
+	for _, v := range i.implementedByCache {
+		//TODO: decide on attrs
+		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, nil})
+	}
 
 	return retval
 }
 
 func (i *Interface) isComposite() bool {
-	return i.inheritedInterfaces.Size() > 0
+	return len(i.inheritedInterfaces) > 0
 }
 
 //no mutation
@@ -83,7 +89,9 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 
 func (i *Interface) setImplementedBy(s []*Struct) []*Struct {
 	retval := i.implementedBy(s)
-	i.implementedByCache.SetNeighbors(retval)
+
+	i.implementedByCache = make([]*Struct, 0, len(retval))
+	copy(i.implementedByCache, retval)
 
 	return retval
 }
@@ -109,7 +117,7 @@ func (i *Interface) allRequiredFunctions() []*Function {
 		panic("copy failed in allRequiredFunctions")
 	}
 
-	for _, v := range i.inheritedInterfaces.neighbors {
+	for _, v := range i.inheritedInterfaces {
 		retval = append(retval, v.allRequiredFunctions()...)
 	}
 
@@ -118,7 +126,7 @@ func (i *Interface) allRequiredFunctions() []*Function {
 
 //for if interface is found as an Anonymous member of something else first
 func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
-	retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0)}
+	retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0), nil, nil, nil}
 	b.node = &retval
 
 	retval.includedIn = append(retval.includedIn, source)

@@ -5,6 +5,8 @@ package main
 import "go/ast"
 import "github.com/firegoblin/gographviz"
 
+//A node is responsible for the incoming edges to it
+
 //A node type
 //implements gographviz.GraphableNode
 type Struct struct {
@@ -21,7 +23,7 @@ type Struct struct {
 	receiverFunctions []*Function
 
 	//structs or interfaces included anonymously in this struct
-	inheritedStructs EdgeSet
+	inheritedStructs []gographviz.GraphableNode
 
 	//structs this type is included in anonymously
 	includedIn []*Struct
@@ -65,12 +67,16 @@ func (s *Struct) Edges() []*gographviz.Edge {
 	var retval []*gographviz.Edge
 
 	if parentEdge != nil {
-		retval = make([]*gographviz.Edge, 0, s.inheritedStructs.Size()+1)
+		retval = make([]*gographviz.Edge, 0, len(s.inheritedStructs)+1)
 	} else {
-		retval = make([]*gographviz.Edge, 0, s.inheritedStructs.Size())
+		retval = make([]*gographviz.Edge, 0, len(s.inheritedStructs))
 	}
 
-	copy(retval, s.inheritedStructs.Edges(s))
+	for _, v := range s.inheritedStructs {
+		//TODO: decide on attrs
+		retval = append(retval, &gographviz.Edge{v.Name(), "", s.Name(), "", true, nil})
+	}
+
 	if parentEdge != nil {
 		retval = append(retval, parentEdge)
 	}
@@ -85,8 +91,13 @@ func (s *Struct) allReceiverFunctions() []*Function {
 		panic("copy failed in allRequiredFunctions")
 	}
 
-	for _, v := range s.inheritedStructs.neighbors {
-		retval = append(retval, v.allReceiverFunctions()...)
+	for _, v := range s.inheritedStructs {
+		switch w := v.(type) {
+		case *Struct:
+			retval = append(retval, w.allReceiverFunctions()...)
+		case *Interface:
+			retval = append(retval, w.allRequiredFunctions()...)
+		}
 	}
 
 	return retval
@@ -165,7 +176,7 @@ func (s *Struct) getFields() []NamedType {
 }
 
 func makeRedefinedTyp(b *BaseType, s string) *Struct {
-	retval := Struct{b, typeMap.lookupOrAdd(s), make([]NamedType, 0), make([]*Function, 0), make([]*Struct, 0), make([]*Struct, 0)}
+	retval := Struct{b, typeMap.lookupOrAdd(s), make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, nil}
 	b.addNode(&retval)
 
 	return &retval
@@ -173,7 +184,7 @@ func makeRedefinedTyp(b *BaseType, s string) *Struct {
 
 //for if struct is found as an Anonymous member of something else first
 func makeStructUnknown(b *BaseType, source *Struct) *Struct {
-	retval := Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]*Struct, 0), make([]*Struct, 0)}
+	retval := Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, nil}
 	b.addNode(&retval)
 
 	retval.includedIn = append(retval.includedIn, source)

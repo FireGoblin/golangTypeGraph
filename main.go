@@ -44,38 +44,6 @@ func processTypeDecl(obj *ast.Object, typ *Type) {
 	}
 }
 
-// func processDecls(obj *ast.Object, typ Type) {
-// 	decl, ok := obj.Decl.Type.(*ast.GenDecl)
-// 	if !ok {
-// 		pani("unexpected type in processTypeDecl")
-// 	}
-// 	switch d := decl.(type) {
-// 	case *ast.FuncDecl:
-// 		makeFunction(d)
-// 	case *ast.GenDecl:
-// 		for _, spec := range file.Specs {
-// 			switch s := spec.(type) {
-// 			case *ast.TypeSpec:
-// 				switch s.Type.(type) {
-// 				case *ast.StructType:
-// 					structList = append(structList, makeStruct(s))
-// 				case *ast.InterfaceType:
-// 					interfaceList = append(interfaceList, makeInterface(s))
-// 				default:
-// 					panic("unexpected type of s.Type")
-// 				}
-// 			default:
-// 				panic("unexpected type of spec")
-// 			}
-// 		}
-// 	default:
-// 		panic("unexpected type of decl")
-// 	}
-// }
-
-var typeMap = MasterTypeMap(make(map[string]*Type))
-var funcMap = MasterFuncMap(make(map[string]*Function))
-
 func main() {
 	//initialize master map with builtin types
 	fset := token.NewFileSet()
@@ -84,9 +52,9 @@ func main() {
 	var err error
 
 	if *includeTestFiles {
-		pkgs, err := parser.ParseDir(fset, *filename, nil, 0)
+		pkgs, err = parser.ParseDir(fset, *filename, nil, 0)
 	} else {
-		pkgs, err := parser.ParseDir(fset, *filename, func(f os.FileInfo) bool {
+		pkgs, err = parser.ParseDir(fset, *filename, func(f os.FileInfo) bool {
 			return !strings.Contains(f.Name(), "_test.go")
 		}, 0)
 	}
@@ -96,9 +64,10 @@ func main() {
 
 	for _, pkg := range pkgs {
 		for _, file := range pkg.Files {
-			//add all types to master list before processing delcarationas
+			//add all types to master list before processing delcarations
+			//minimizes creation of unknown types
 			for key := range pkg.Scope.Objects {
-				typ := typeMap.lookupOrAdd(key)
+				typeMap.lookupOrAdd(key)
 			}
 
 			//processes all structs, interfaces, and embedded types
@@ -109,9 +78,9 @@ func main() {
 
 			//processes all the function declarations
 			for _, decl := range file.Decls {
-				switch decl.(type) {
+				switch d := decl.(type) {
 				case *ast.FuncDecl:
-					processFuncDecl(decl)
+					funcMap.lookupOrAddFromExpr(d.Name.Name, d.Type)
 				}
 			}
 		}

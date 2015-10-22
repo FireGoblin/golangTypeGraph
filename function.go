@@ -24,26 +24,37 @@ type Function struct {
 	//any interfaces that require this function
 	interfaces []*Interface
 
-	astNode ast.FuncType
+	astNode *ast.FuncType
 }
 
+// func makeFunctionFromDecl(f *ast.FuncDecl) *Function {
+// 	return sharedMakeFunction(f.Name.Name, f.Type)
+// }
+
+// func makeFunction(s string) *Function {
+// 	return sharedMakeFunction(s, nil)
+// }
+
+// func makeFunctionFromExpr(f *ast.Field) *Function {
+// 	return sharedMakeFunction(String(f.Type), f)
+// }
+
 func makeFunction(s string, f *ast.FuncType) *Function {
-	//FunctionParser := MustCompile(`^([\w]+)(\(.*?\) .*)$`)
+	// params, err := typ.params()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// returns, err := typ.returnTypes()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	//reg := FunctionParser.FindStringSubmatch(s)
 	typ := typeMap.lookupOrAdd("func" + String(f))
-	params, err := typ.params()
-	if err != nil {
-		panic(err)
-	}
-	returns, err := typ.returnTypes()
-	if err != nil {
-		panic(err)
-	}
 
-	retval := Function{s, typ, params, returns, make([]*Struct, 0), make([]*Interface, 0), *f}
+	//TODO eventually: re-add paramTypes and returnTypes
+	retval := &Function{s, typ, nil, nil, make([]*Struct, 0), make([]*Interface, 0), f}
 
-	return &retval
+	return retval
 }
 
 func (f *Function) addInterface(i *Interface) {

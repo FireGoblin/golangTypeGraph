@@ -25,6 +25,10 @@ func removeNames(f *ast.FieldList) *ast.FieldList {
 
 // }
 
+func FuncField(f *ast.FuncDecl) *ast.Field {
+	return &ast.Field{nil, []*ast.Ident{f.Name}, f.Type, nil, nil}
+}
+
 func String(expr ast.Node) string {
 	switch e := expr.(type) {
 	case *ast.Ident:
