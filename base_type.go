@@ -37,6 +37,7 @@ func (b BaseType) String() string {
 	return b.name
 }
 
+//UNUSED
 func (b BaseType) maxReference() int {
 	for i, v := range b.allLevels {
 		if v == nil {

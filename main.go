@@ -12,15 +12,9 @@ import (
 	"strings"
 )
 
-var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error", "float32", "float64",
-	"int", "int8", "int16", "int32", "int64",
-	"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
-
-func check(err error) {
-	if err != nil && err != io.EOF {
-		panic(err)
-	}
-}
+// var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error", "float32", "float64",
+// 	"int", "int8", "int16", "int32", "int64",
+// 	"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
 
 var filename = flag.String("file", "github.com/firegoblin/golangTypeGraph", "file to parse on, relative to $GOPATH/src")
 var includeTestFiles = flag.Bool("test", true, "whether or not to include test files in the graph")
