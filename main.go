@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/firegoblin/gographviz"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -21,14 +22,10 @@ func check(err error) {
 	}
 }
 
-var filename = flag.String("file", "/Users/AnimotoOverstreet/go/src/github.com/firegoblin/goActorBinaryTree", "file to parse on")
+var filename = flag.String("file", "github.com/firegoblin/golangTypeGraph", "file to parse on, relative to $GOPATH/src")
 var includeTestFiles = flag.Bool("test", true, "whether or not to include test files in the graph")
 
-var structList = make([]*Struct, 0)
-var funcList = make([]*Function, 0)
-var interfaceList = make([]*Interface, 0)
-
-func processTypeDecl(obj *ast.Object, typ *Type) {
+func processTypeDecl(obj *ast.Object, typ *Type, structList []*Struct, interfaceList []*Interface) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)
 	if !ok {
 		panic("unexpected type in processTypeDecl")
@@ -45,16 +42,20 @@ func processTypeDecl(obj *ast.Object, typ *Type) {
 }
 
 func main() {
+	flag.Parse()
+
 	//initialize master map with builtin types
 	fset := token.NewFileSet()
 
 	var pkgs map[string]*ast.Package
 	var err error
 
+	gopath := os.Getenv("GOPATH") + "/src/"
+
 	if *includeTestFiles {
-		pkgs, err = parser.ParseDir(fset, *filename, nil, 0)
+		pkgs, err = parser.ParseDir(fset, gopath+*filename, nil, 0)
 	} else {
-		pkgs, err = parser.ParseDir(fset, *filename, func(f os.FileInfo) bool {
+		pkgs, err = parser.ParseDir(fset, gopath+*filename, func(f os.FileInfo) bool {
 			return !strings.Contains(f.Name(), "_test.go")
 		}, 0)
 	}
@@ -62,6 +63,12 @@ func main() {
 		panic("could not read original directory")
 	}
 
+	structList := make([]*Struct, 0)
+	interfaceList := make([]*Interface, 0)
+
+	//ast.Print(fset, pkgs)
+
+	//TODO: fix for multiple packages
 	for _, pkg := range pkgs {
 		for _, file := range pkg.Files {
 			//add all types to master list before processing delcarations
@@ -73,7 +80,7 @@ func main() {
 			//processes all structs, interfaces, and embedded types
 			for key, scope := range pkg.Scope.Objects {
 				typ := typeMap.lookupOrAdd(key)
-				processTypeDecl(scope, typ)
+				processTypeDecl(scope, typ, structList, interfaceList)
 			}
 
 			//processes all the function declarations
@@ -86,12 +93,24 @@ func main() {
 		}
 	}
 
-	for _, i := range interfaceList {
-		implementingStructs := i.implementedBy(structList)
+	// for _, i := range interfaceList {
+	// 	implementingStructs := i.implementedBy(structList)
 
-		fmt.Println("Interface", i, "is implemented by the following types:")
-		for _, s := range implementingStructs {
-			fmt.Println("   ", s)
-		}
+	// 	fmt.Println("Interface", i, "is implemented by the following types:")
+	// 	for _, s := range implementingStructs {
+	// 		fmt.Println("   ", s)
+	// 	}
+	// }
+
+	g := gographviz.NewGraph()
+	g.SetName(*filename)
+	g.SetDir(true)
+	for _, s := range structList {
+		g.AddGraphableNode("G", s)
 	}
+	for _, i := range interfaceList {
+		g.AddGraphableNode("g", i)
+	}
+	s := g.String()
+	fmt.Println(s)
 }

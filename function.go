@@ -27,32 +27,21 @@ type Function struct {
 	astNode *ast.FuncType
 }
 
-// func makeFunctionFromDecl(f *ast.FuncDecl) *Function {
-// 	return sharedMakeFunction(f.Name.Name, f.Type)
-// }
+func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
+	typ := typeMap.lookupOrAdd(String(f))
 
-// func makeFunction(s string) *Function {
-// 	return sharedMakeFunction(s, nil)
-// }
+	var paramsProcessed = make([]*Type, 0)
+	var resultsProcessed = make([]*Type, 0)
 
-// func makeFunctionFromExpr(f *ast.Field) *Function {
-// 	return sharedMakeFunction(String(f.Type), f)
-// }
-
-func makeFunction(s string, f *ast.FuncType) *Function {
-	// params, err := typ.params()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// returns, err := typ.returnTypes()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	typ := typeMap.lookupOrAdd("func" + String(f))
+	for _, expr := range nameless.Params.List {
+		paramsProcessed = append(paramsProcessed, typeMap.lookupOrAddFromExpr(expr.Type))
+	}
+	for _, expr := range nameless.Results.List {
+		resultsProcessed = append(resultsProcessed, typeMap.lookupOrAddFromExpr(expr.Type))
+	}
 
 	//TODO eventually: re-add paramTypes and returnTypes
-	retval := &Function{s, typ, nil, nil, make([]*Struct, 0), make([]*Interface, 0), f}
+	retval := &Function{s, typ, paramsProcessed, resultsProcessed, make([]*Struct, 0), make([]*Interface, 0), f}
 
 	return retval
 }

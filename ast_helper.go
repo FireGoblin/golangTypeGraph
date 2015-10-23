@@ -35,6 +35,8 @@ func String(expr ast.Node) string {
 		return e.Name
 	case *ast.StarExpr:
 		return "*" + String(e.X)
+	case *ast.SelectorExpr:
+		return String(e.X) + "." + String(e.Sel)
 	case *ast.ArrayType:
 		switch sub := e.Len.(type) {
 		case *ast.BasicLit:
@@ -91,7 +93,9 @@ func String(expr ast.Node) string {
 		// if reflect.TypeOf(e.Type) != *ast.FuncType {
 		// 	x += "/t"
 		// }
-		x += " "
+		if len(e.Names) > 0 {
+			x += " "
+		}
 		x += String(e.Type)
 		return x
 	default:
