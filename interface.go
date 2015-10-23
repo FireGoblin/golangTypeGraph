@@ -125,13 +125,13 @@ func (i *Interface) allRequiredFunctions() []*Function {
 }
 
 //for if interface is found as an Anonymous member of something else first
-func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
-	retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0), nil, nil, nil}
-	b.node = &retval
+func makeInterfaceUnknown(source *Interface, b *BaseType) *Interface {
+	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0), nil, nil, nil}
+	b.addNode(retval)
 
 	retval.includedIn = append(retval.includedIn, source)
 
-	return &retval
+	return retval
 }
 
 //possibilities for lines:
@@ -139,36 +139,32 @@ func makeInterfaceUnknown(b *BaseType, source *Interface) *Interface {
 //(comma seperated list of names) Type -> NamedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func makeInterface(spec *ast.TypeSpec, typ *BaseType) *Interface {
-	// FunctionParser := MustCompile(`^([\w]+)(\(.*?\) .*)$`)
-	// retval := Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0)}
-	// b.node = &retval
+func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
+	interfaceType, ok := spec.Type.(*ast.InterfaceType)
+	if !ok {
+		panic("bad ast.TypeSpec that is not InterfaceType in makeInterface")
+	}
 
-	// for _, v := range lines {
-	// 	ifp := FunctionParser.FindStringSubmatch(v)
-	// 	if len(ifp) != 0 {
-	// 		f := funcMap.lookupOrAdd(ifp[0])
-	// 		f.addInterface(&retval)
-	// 		retval.requiredFunctions = append(retval.requiredFunctions, f)
-	// 	} else {
-	// 		typ := typeMap.lookupOrAdd(v)
-	// 		var interfac *Interface
+	//should only be used with declarations, if struct is in field names use makeStructUnknown
+	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0), nil, nil, interfaceType}
 
-	// 		if typ.base.node == nil {
-	// 			interfac := makeInterfaceUnknown(typ.base, &retval)
-	// 			typ.base.node = interfac
-	// 		} else {
-	// 			var ok bool
-	// 			interfac, ok = typ.base.node.(*Interface)
-	// 			if !ok {
-	// 				panic("Could not find struct of anonymous member")
-	// 			}
-	// 		}
-	// 		retval.inheritedInterfaces = append(retval.inheritedInterfaces, interfac)
-	// 	}
-	// }
+	for _, v := range interfaceType.Methods.List {
+		if len(v.Names) != 0 {
+			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
+			f.addInterface(retval)
+			retval.requiredFunctions = append(retval.requiredFunctions, f)
+		} else {
+			lookup := typeMap.lookupOrAdd(String(v.Type))
+			if lookup.base.node != nil {
+				retval.inheritedInterfaces = append(retval.inheritedInterfaces, lookup.base.node.(*Interface))
+			} else {
+				retval.inheritedInterfaces = append(retval.inheritedInterfaces, makeInterfaceUnknown(retval, lookup.base))
+			}
+		}
+	}
 
-	// return &retval
+	b.addNode(retval)
+	return retval
 
 	return nil
 }

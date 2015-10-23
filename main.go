@@ -93,14 +93,14 @@ func main() {
 		}
 	}
 
-	// for _, i := range interfaceList {
-	// 	implementingStructs := i.implementedBy(structList)
+	for _, i := range interfaceList {
+		i.setImplementedBy(structList)
 
-	// 	fmt.Println("Interface", i, "is implemented by the following types:")
-	// 	for _, s := range implementingStructs {
-	// 		fmt.Println("   ", s)
-	// 	}
-	// }
+		//fmt.Println("Interface", i, "is implemented by the following types:")
+		//for _, s := range implementingStructs {
+		//	fmt.Println("   ", s)
+		//}
+	}
 
 	g := gographviz.NewGraph()
 	g.SetName(*filename)

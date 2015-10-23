@@ -199,12 +199,12 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 		//struct
 		flattenedFields := flattened(t.Fields)
 		for _, v := range flattenedFields.List {
-			if v.Names != nil {
+			if len(v.Names) != 0 {
 				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
 			} else {
 				lookup := typeMap.lookupOrAdd(String(v.Type))
 				if lookup.base.node != nil {
-					retval.inheritedTypes = append(retval.inheritedTypes, typeMap.lookupOrAdd(String(v.Type)).base.node)
+					retval.inheritedTypes = append(retval.inheritedTypes, lookup.base.node)
 				} else {
 					retval.inheritedTypes = append(retval.inheritedTypes, makeStructUnknown(retval, lookup.base))
 				}
@@ -217,6 +217,6 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 		panic("unexpected type in makeStruct")
 	}
 
-	b.node = retval
+	b.addNode(retval)
 	return retval
 }

@@ -35,10 +35,6 @@ func removeNames(f *ast.FieldList) *ast.FieldList {
 	return x
 }
 
-// func (f *ast.FuncType) basicFuncType() *ast.FuncType {
-
-// }
-
 func FuncField(f *ast.FuncDecl) *ast.Field {
 	return &ast.Field{nil, []*ast.Ident{f.Name}, f.Type, nil, nil}
 }
