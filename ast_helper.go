@@ -2,6 +2,7 @@ package main
 
 import "go/ast"
 import "go/token"
+import "strings"
 
 //ordering is important
 func normalized(f *ast.FieldList) *ast.FieldList {
@@ -66,7 +67,7 @@ func String(expr ast.Node) string {
 			return "chan" + String(e.Value)
 		}
 	case *ast.FuncType:
-		return String(e.Params) + " " + String(e.Results)
+		return "func" + String(e.Params) + " " + String(e.Results)
 	case *ast.InterfaceType:
 		x := ""
 		for _, v := range e.Methods.List {
@@ -89,26 +90,30 @@ func String(expr ast.Node) string {
 		for _, v := range e.List {
 			x += String(v) + ", "
 		}
-		//TODO: remove last comma
+
+		x = strings.Trim(x, ", ")
 		if e.Closing != token.NoPos {
 			x += ")"
 		}
 		return x
 	case *ast.Field:
+		//assumes a parameter style Field (x func(int)string)
+		//use StringInterfaceField for interface fields (x(int)string)
 		x := ""
 		for _, v := range e.Names {
 			x += v.Name + ", "
 		}
-		//TODO: remove last comma
-		// if reflect.TypeOf(e.Type) != *ast.FuncType {
-		// 	x += "/t"
-		// }
-		if len(e.Names) > 0 {
-			x += " "
-		}
+
+		x = strings.Trim(x, ", ")
+		x += " "
 		x += String(e.Type)
 		return x
 	default:
 		panic("unexpected type of ast.Expr called String()")
 	}
+}
+
+//*ast.Field in String() assumes a parameter style Field, this works for interface field
+func StringInterfaceField(f *ast.Field) string {
+	return f.Names[0].Name + String(f.Type.(*ast.FuncType).Params) + String(f.Type.(*ast.FuncType).Results)
 }
