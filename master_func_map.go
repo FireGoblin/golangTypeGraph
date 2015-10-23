@@ -11,8 +11,8 @@ var funcMap = MasterFuncMap(make(map[string]*Function))
 func (m MasterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Function {
 	var namelessExpr = &ast.FuncType{0, nil, nil}
 
-	namelessExpr.Params = removeNames(expr.Params)
-	namelessExpr.Results = removeNames(expr.Results)
+	namelessExpr.Params = normalized(expr.Params)
+	namelessExpr.Results = normalized(expr.Results)
 
 	s := name + String(namelessExpr)
 

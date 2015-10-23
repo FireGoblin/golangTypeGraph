@@ -23,7 +23,7 @@ type Struct struct {
 	receiverFunctions []*Function
 
 	//structs or interfaces included anonymously in this struct
-	inheritedStructs []gographviz.GraphableNode
+	inheritedTypes []gographviz.GraphableNode
 
 	//structs this type is included in anonymously
 	includedIn []*Struct
@@ -67,12 +67,12 @@ func (s *Struct) Edges() []*gographviz.Edge {
 	var retval []*gographviz.Edge
 
 	if parentEdge != nil {
-		retval = make([]*gographviz.Edge, 0, len(s.inheritedStructs)+1)
+		retval = make([]*gographviz.Edge, 0, len(s.inheritedTypes)+1)
 	} else {
-		retval = make([]*gographviz.Edge, 0, len(s.inheritedStructs))
+		retval = make([]*gographviz.Edge, 0, len(s.inheritedTypes))
 	}
 
-	for _, v := range s.inheritedStructs {
+	for _, v := range s.inheritedTypes {
 		//TODO: decide on attrs
 		retval = append(retval, &gographviz.Edge{v.Name(), "", s.Name(), "", true, nil})
 	}
@@ -91,7 +91,7 @@ func (s *Struct) allReceiverFunctions() []*Function {
 		panic("copy failed in allRequiredFunctions")
 	}
 
-	for _, v := range s.inheritedStructs {
+	for _, v := range s.inheritedTypes {
 		switch w := v.(type) {
 		case *Struct:
 			retval = append(retval, w.allReceiverFunctions()...)
@@ -150,7 +150,7 @@ func (s *Struct) interfacesImplemented(i []*Interface) []*Interface {
 }
 
 func (s *Struct) isComposite() bool {
-	return len(s.inheritedStructs) > 0
+	return len(s.inheritedTypes) > 0
 }
 
 func (s *Struct) isRedefinedType() bool {
@@ -175,21 +175,14 @@ func (s *Struct) getFields() []NamedType {
 	return nil
 }
 
-func makeRedefinedTyp(b *BaseType, s string) *Struct {
-	retval := Struct{b, typeMap.lookupOrAdd(s), make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, nil}
-	b.addNode(&retval)
-
-	return &retval
-}
-
 //for if struct is found as an Anonymous member of something else first
-func makeStructUnknown(b *BaseType, source *Struct) *Struct {
-	retval := Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, nil}
-	b.addNode(&retval)
+func makeStructUnknown(source *Struct, b *BaseType) *Struct {
+	retval := &Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, nil}
+	b.addNode(retval)
 
 	retval.includedIn = append(retval.includedIn, source)
 
-	return &retval
+	return retval
 }
 
 //possibilities for lines:
@@ -197,48 +190,33 @@ func makeStructUnknown(b *BaseType, source *Struct) *Struct {
 //(comma seperated list of names) Type -> NamedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func makeStruct(spec *ast.TypeSpec, typ *BaseType) *Struct {
+func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 	//should only be used with declarations, if struct is in field names use makeStructUnknown
-	// b := makeType(spec.Name)
-	// retval := Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]*Struct, 0), make([]*Struct, 0)}
-	// b.addNode(&retval)
+	retval := &Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, spec.Type}
 
-	// switch typ := spec.Type.(type) {
-	// case *ast.StructType:
-	// 	//struct
-	// case *ast.Ident:
-	// 	//redefined type
-	// 	retval.parent = typeMap.lookupOrAdd(typ.Name)
-	// default:
-	// 	panic("unexpected type in makeStruct")
-	// }
+	switch t := spec.Type.(type) {
+	case *ast.StructType:
+		//struct
+		flattenedFields := flattened(t.Fields)
+		for _, v := range flattenedFields.List {
+			if v.Names != nil {
+				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
+			} else {
+				lookup := typeMap.lookupOrAdd(String(v.Type))
+				if lookup.base.node != nil {
+					retval.inheritedTypes = append(retval.inheritedTypes, typeMap.lookupOrAdd(String(v.Type)).base.node)
+				} else {
+					retval.inheritedTypes = append(retval.inheritedTypes, makeStructUnknown(retval, lookup.base))
+				}
+			}
+		}
+	case *ast.Ident:
+		//redefined type
+		retval.parent = typeMap.lookupOrAdd(t.Name)
+	default:
+		panic("unexpected type in makeStruct")
+	}
 
-	// for _, v := range lines {
-	// 	ntp := NamedTypeParser.FindStringSubmatch(v)
-	// 	if len(ntp) != 0 {
-	// 		str := strings.Split(ntp[1], ", ")
-	// 		typ := typeMap.lookupOrAdd(ntp[2])
-	// 		for _, s := range str {
-	// 			retval.fields = append(retval.fields, NamedType{s, typ})
-	// 		}
-	// 	} else {
-	// 		typ := typeMap.lookupOrAdd(v)
-	// 		var struc *Struct
-
-	// 		if typ.base.node == nil {
-	// 			struc := makeStructUnknown(typ.base, &retval)
-	// 			typ.base.node = struc
-	// 		} else {
-	// 			var ok bool
-	// 			struc, ok = typ.base.node.(*Struct)
-	// 			if !ok {
-	// 				panic("Could not find struct of anonymous member")
-	// 			}
-	// 		}
-	// 		retval.inheritedStructs = append(retval.inheritedStructs, struc)
-	// 	}
-	// }
-
-	// return &retval
-	return nil
+	b.node = retval
+	return retval
 }

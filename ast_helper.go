@@ -3,19 +3,33 @@ package main
 import "go/ast"
 import "go/token"
 
-func removeNames(f *ast.FieldList) *ast.FieldList {
+//ordering is important
+func normalized(f *ast.FieldList) *ast.FieldList {
+	return removeNames(flattened(f))
+}
+
+func flattened(f *ast.FieldList) *ast.FieldList {
 	x := &ast.FieldList{f.Opening, make([]*ast.Field, 0, len(f.List)*2), f.Closing}
-	copy(x.List, f.List)
-	offset := 0
-	for i, field := range f.List {
-		if len(field.Names) >= 1 {
-			extras := len(field.Names) - 1
-			x.List[i+offset].Names = x.List[i+offset].Names[:0]
-			for j := 1; j <= extras; j++ {
-				x.List = append(x.List[:i+offset+j], append([]*ast.Field{x.List[i+offset]}, x.List[i+offset+j])...)
+
+	for _, field := range f.List {
+		if len(field.Names) > 1 {
+			for j := 0; j < len(field.Names); j++ {
+				x.List = append(x.List, field)
+				x.List[len(x.List)-1].Names = []*ast.Ident{field.Names[j]}
 			}
-			offset += extras
+		} else {
+			x.List = append(x.List, field)
 		}
+	}
+
+	return x
+}
+
+func removeNames(f *ast.FieldList) *ast.FieldList {
+	x := &ast.FieldList{f.Opening, make([]*ast.Field, 0, len(f.List)), f.Closing}
+	copy(x.List, f.List)
+	for i := range x.List {
+		x.List[i].Names = nil
 	}
 
 	return x
