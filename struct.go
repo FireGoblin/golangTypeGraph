@@ -191,6 +191,10 @@ func (s *Struct) getFields() []NamedType {
 	return nil
 }
 
+func (s *Struct) addToIncludedIn(x *Struct) {
+	s.includedIn = append(s.includedIn, x)
+}
+
 //for if struct is found as an Anonymous member of something else first
 func makeStructUnknown(source *Struct, b *BaseType) *Struct {
 	retval := &Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, nil}
@@ -199,6 +203,35 @@ func makeStructUnknown(source *Struct, b *BaseType) *Struct {
 	retval.includedIn = append(retval.includedIn, source)
 
 	return retval
+}
+
+func (s *Struct) remakeStruct(spec *ast.TypeSpec) *Struct {
+	switch t := spec.Type.(type) {
+	case *ast.StructType:
+		//struct
+		flattenedFields := flattened(t.Fields)
+		for _, v := range flattenedFields.List {
+			if len(v.Names) != 0 {
+				s.fields = append(s.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
+			} else {
+				lookup := typeMap.lookupOrAdd(String(v.Type))
+				node := lookup.base.node
+				if node != nil {
+					s.inheritedTypes = append(s.inheritedTypes, node)
+					node.(*Struct).addToIncludedIn(s)
+				} else {
+					s.inheritedTypes = append(s.inheritedTypes, makeStructUnknown(s, lookup.base))
+				}
+			}
+		}
+	case *ast.Ident:
+		//redefined type
+		s.parent = typeMap.lookupOrAdd(t.Name)
+	default:
+		panic("unexpected type in makeStruct")
+	}
+
+	return s
 }
 
 //possibilities for lines:
@@ -219,8 +252,10 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
 			} else {
 				lookup := typeMap.lookupOrAdd(String(v.Type))
-				if lookup.base.node != nil {
-					retval.inheritedTypes = append(retval.inheritedTypes, lookup.base.node)
+				node := lookup.base.node
+				if node != nil {
+					retval.inheritedTypes = append(retval.inheritedTypes, node)
+					node.(*Struct).addToIncludedIn(retval)
 				} else {
 					retval.inheritedTypes = append(retval.inheritedTypes, makeStructUnknown(retval, lookup.base))
 				}

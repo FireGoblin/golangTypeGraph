@@ -1,27 +1,9 @@
-package redefined
+package shuffled
 
 import "fmt"
 
-type OneFunction interface {
-	ID() int
-}
-
-type TwoFunctions interface {
-	CombinedName(string) string
-	AddInt(int)
-}
-
-type ThreeFunctions interface {
-	OneFunction
-	TwoFunctions
-}
-
 func AddXToY(x OneFunction, y TwoFunctions) {
 	y.AddInt(x.ID())
-}
-
-type Implements struct {
-	id int
 }
 
 func (i *Implements) String() string {
@@ -32,17 +14,8 @@ func (i *Implements) ID() int {
 	return i.id
 }
 
-type NotImplementing struct {
-	id string
-}
-
 func (i *NotImplementing) ID() string {
 	return i.id
-}
-
-type Partial struct {
-	Implements
-	name string
 }
 
 func (p *Partial) CombinedName(s string) string {
@@ -57,12 +30,32 @@ func (p *Everything) AddInt(i int) {
 	p.id = p.id + i
 }
 
+func (l *LoseItAll) ID() int {
+	return 0
+}
+
 type Everything struct {
 	Partial
 }
-
+type NotImplementing struct {
+	id string
+}
+type ThreeFunctions interface {
+	OneFunction
+	TwoFunctions
+}
+type Implements struct {
+	id int
+}
+type OneFunction interface {
+	ID() int
+}
 type LoseItAll Everything
-
-func (l *LoseItAll) ID() int {
-	return 0
+type TwoFunctions interface {
+	CombinedName(string) string
+	AddInt(int)
+}
+type Partial struct {
+	Implements
+	name string
 }

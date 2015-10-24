@@ -1,4 +1,4 @@
-package redefined
+package composition
 
 import "fmt"
 
@@ -53,16 +53,16 @@ func (p *Partial) ExtraFunction(i int) {
 	p.id = p.id + i
 }
 
-func (p *Everything) AddInt(i int) {
-	p.id = p.id + i
-}
-
 type Everything struct {
 	Partial
 }
 
-type LoseItAll Everything
-
-func (l *LoseItAll) ID() int {
-	return 0
+func (p *Everything) AddInt(i int) {
+	p.id = p.id + i
 }
+
+// type LoseItAll Everything
+
+// func (l *LoseItAll) ID() int {
+// 	return 0
+// }

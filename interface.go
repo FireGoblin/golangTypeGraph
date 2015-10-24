@@ -22,6 +22,7 @@ type Interface struct {
 	inheritedInterfaces []*Interface
 
 	//interfaces this is included in
+	//TODO: change to allow for being included in structs
 	includedIn []*Interface
 
 	//structs
@@ -94,12 +95,12 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 		}
 
 		if !found {
-			fmt.Println("return false")
+			fmt.Println("return false\n")
 			return false
 		}
 	}
 
-	fmt.Println("return true")
+	fmt.Println("return true\n")
 	return true
 }
 
@@ -150,6 +151,36 @@ func makeInterfaceUnknown(source *Interface, b *BaseType) *Interface {
 	return retval
 }
 
+func (i *Interface) addToIncludedIn(x *Interface) {
+	i.includedIn = append(i.includedIn, x)
+}
+
+func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
+	interfaceType, ok := spec.Type.(*ast.InterfaceType)
+	if !ok {
+		panic("bad ast.TypeSpec that is not InterfaceType in makeInterface")
+	}
+
+	for _, v := range interfaceType.Methods.List {
+		if len(v.Names) != 0 {
+			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
+			f.addInterface(i)
+			i.requiredFunctions = append(i.requiredFunctions, f)
+		} else {
+			lookup := typeMap.lookupOrAdd(String(v.Type))
+			node := lookup.base.node
+			if node != nil {
+				i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*Interface))
+				node.(*Interface).addToIncludedIn(i)
+			} else {
+				i.inheritedInterfaces = append(i.inheritedInterfaces, makeInterfaceUnknown(i, lookup.base))
+			}
+		}
+	}
+
+	return i
+}
+
 //possibilities for lines:
 //Type -> inheritedStruct
 //(comma seperated list of names) Type -> NamedTypes
@@ -171,8 +202,10 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 			retval.requiredFunctions = append(retval.requiredFunctions, f)
 		} else {
 			lookup := typeMap.lookupOrAdd(String(v.Type))
-			if lookup.base.node != nil {
-				retval.inheritedInterfaces = append(retval.inheritedInterfaces, lookup.base.node.(*Interface))
+			node := lookup.base.node
+			if node != nil {
+				retval.inheritedInterfaces = append(retval.inheritedInterfaces, node.(*Interface))
+				node.(*Interface).addToIncludedIn(retval)
 			} else {
 				retval.inheritedInterfaces = append(retval.inheritedInterfaces, makeInterfaceUnknown(retval, lookup.base))
 			}

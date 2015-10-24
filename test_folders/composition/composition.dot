@@ -1,0 +1,20 @@
+digraph composition {
+	Implements->Partial;
+	Partial->Everything;
+	Implements->OneFunction;
+	Partial->OneFunction;
+	Everything->OneFunction;
+	Everything->TwoFunctions;
+	OneFunction->ThreeFunctions;
+	TwoFunctions->ThreeFunctions;
+	Everything->ThreeFunctions;
+	Everything;
+	Implements;
+	NotImplementing;
+	OneFunction;
+	Partial;
+	ThreeFunctions;
+	TwoFunctions;
+
+}
+

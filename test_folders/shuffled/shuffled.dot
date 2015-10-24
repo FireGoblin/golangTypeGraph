@@ -1,0 +1,23 @@
+digraph shuffled {
+	Implements->Partial;
+	Partial->Everything;
+	Everything->LoseItAll;
+	Everything->TwoFunctions;
+	OneFunction->ThreeFunctions;
+	TwoFunctions->ThreeFunctions;
+	Everything->ThreeFunctions;
+	Implements->OneFunction;
+	Partial->OneFunction;
+	Everything->OneFunction;
+	LoseItAll->OneFunction;
+	Everything;
+	Implements;
+	LoseItAll;
+	NotImplementing;
+	OneFunction;
+	Partial;
+	ThreeFunctions;
+	TwoFunctions;
+
+}
+

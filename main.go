@@ -25,11 +25,27 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfac
 		panic("unexpected type in processTypeDecl")
 	}
 
+	node := typ.base.node
+
 	switch decl.Type.(type) {
 	case *ast.StructType:
-		*structList = append(*structList, makeStruct(decl, typ.base))
+		if node == nil {
+			*structList = append(*structList, makeStruct(decl, typ.base))
+		} else {
+			*structList = append(*structList, node.(*Struct).remakeStruct(decl))
+		}
 	case *ast.InterfaceType:
-		*interfaceList = append(*interfaceList, makeInterface(decl, typ.base))
+		if node == nil {
+			*interfaceList = append(*interfaceList, makeInterface(decl, typ.base))
+		} else {
+			*interfaceList = append(*interfaceList, node.(*Interface).remakeInterface(decl))
+		}
+	case *ast.Ident:
+		if node == nil {
+			*structList = append(*structList, makeStruct(decl, typ.base))
+		} else {
+			*structList = append(*structList, node.(*Struct).remakeStruct(decl))
+		}
 	default:
 		panic("unexpected type of s.Type")
 	}
@@ -104,7 +120,7 @@ func main() {
 				}
 			}
 
-			fmt.Println(interfaceList[0].requiredFunctions[0] == structList[1].receiverFunctions[0])
+			//fmt.Println(interfaceList[0].requiredFunctions[0] == structList[1].receiverFunctions[0])
 
 			fmt.Println("funcMap:")
 			fmt.Println(funcMap)
@@ -128,9 +144,11 @@ func main() {
 	g.SetName((*filename)[strings.LastIndex(*filename, "/")+1:])
 	g.SetDir(true)
 	for _, s := range structList {
+		fmt.Println("Add Struct Node:", s.Name())
 		g.AddGraphableNode("G", s)
 	}
 	for _, i := range interfaceList {
+		fmt.Println("Add Interface Node:", i.Name())
 		g.AddGraphableNode("G", i)
 	}
 	s := g.String()
