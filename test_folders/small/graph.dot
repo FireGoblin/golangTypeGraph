@@ -1,0 +1,8 @@
+digraph small {
+	Implements->OneFunction;
+	Implements;
+	NotImplementing;
+	OneFunction;
+
+}
+
