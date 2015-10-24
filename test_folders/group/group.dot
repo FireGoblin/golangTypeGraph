@@ -1,0 +1,23 @@
+digraph group {
+	Everything->LoseItAll;
+	Implements->Partial;
+	Partial->Everything;
+	Everything->TwoFunctions;
+	OneFunction->ThreeFunctions;
+	TwoFunctions->ThreeFunctions;
+	Everything->ThreeFunctions;
+	Implements->OneFunction;
+	LoseItAll->OneFunction;
+	Partial->OneFunction;
+	Everything->OneFunction;
+	Everything;
+	Implements;
+	LoseItAll;
+	NotImplementing;
+	OneFunction;
+	Partial;
+	ThreeFunctions;
+	TwoFunctions;
+
+}
+
