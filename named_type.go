@@ -6,3 +6,7 @@ type NamedType struct {
 	name   string
 	target *Type
 }
+
+func (n NamedType) String() string {
+	return n.name + "\t" + n.target.String()
+}

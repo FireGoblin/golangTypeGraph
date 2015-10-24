@@ -2,6 +2,7 @@ package main
 
 //import . "regexp"
 import "go/ast"
+import "fmt"
 
 type Function struct {
 	//name for function
@@ -19,12 +20,17 @@ type Function struct {
 
 	//if interface or struct is non-empty, then this is used as a receiver function
 	//all structs that implement this function
-	structs []*Struct
+	receivers []*Struct
 
 	//any interfaces that require this function
 	interfaces []*Interface
 
 	astNode *ast.FuncType
+}
+
+func (f *Function) String() string {
+	//return f.name + " " + f.target.name
+	return fmt.Sprintf("%p", f)
 }
 
 func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
@@ -33,11 +39,16 @@ func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
 	var paramsProcessed = make([]*Type, 0)
 	var resultsProcessed = make([]*Type, 0)
 
-	for _, expr := range nameless.Params.List {
-		paramsProcessed = append(paramsProcessed, typeMap.lookupOrAddFromExpr(expr.Type))
+	if nameless.Params != nil {
+		for _, expr := range nameless.Params.List {
+			paramsProcessed = append(paramsProcessed, typeMap.lookupOrAddFromExpr(expr.Type))
+		}
 	}
-	for _, expr := range nameless.Results.List {
-		resultsProcessed = append(resultsProcessed, typeMap.lookupOrAddFromExpr(expr.Type))
+
+	if nameless.Results != nil {
+		for _, expr := range nameless.Results.List {
+			resultsProcessed = append(resultsProcessed, typeMap.lookupOrAddFromExpr(expr.Type))
+		}
 	}
 
 	//TODO eventually: re-add paramTypes and returnTypes
@@ -50,10 +61,11 @@ func (f *Function) addInterface(i *Interface) {
 	f.interfaces = append(f.interfaces, i)
 }
 
-func (f *Function) addStruct(s *Struct) {
-	f.structs = append(f.structs, s)
+func (f *Function) addReceiver(s *Struct) {
+	f.receivers = append(f.receivers, s)
+	s.AddFunction(f)
 }
 
 func (f Function) isReceiverFunction() bool {
-	return len(f.structs)+len(f.interfaces) > 0
+	return len(f.receivers)+len(f.interfaces) > 0
 }

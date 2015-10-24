@@ -3,6 +3,8 @@ package main
 import "go/ast"
 import "github.com/firegoblin/gographviz"
 
+import "fmt"
+
 //import . "regexp"
 
 //A node type
@@ -32,7 +34,14 @@ type Interface struct {
 }
 
 func (i *Interface) String() string {
-	return i.target.name
+	retval := "Interface: " + i.target.name + "\n"
+
+	retval += "Receiver Functions:\n"
+	for _, v := range i.requiredFunctions {
+		retval += v.String() + "\n"
+	}
+
+	return retval
 }
 
 func (i *Interface) Name() string {
@@ -70,6 +79,11 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 	required := i.allRequiredFunctions()
 	have := s.allReceiverFunctions()
 
+	fmt.Println("struct:", s.Name())
+	fmt.Println("interface:", i.Name())
+	fmt.Println("required:", required)
+	fmt.Println("have:", have)
+
 	for _, v := range required {
 		found := false
 		for _, j := range have {
@@ -80,17 +94,19 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 		}
 
 		if !found {
+			fmt.Println("return false")
 			return false
 		}
 	}
 
+	fmt.Println("return true")
 	return true
 }
 
 func (i *Interface) setImplementedBy(s []*Struct) []*Struct {
 	retval := i.implementedBy(s)
 
-	i.implementedByCache = make([]*Struct, 0, len(retval))
+	i.implementedByCache = make([]*Struct, len(retval))
 	copy(i.implementedByCache, retval)
 
 	return retval
@@ -163,8 +179,8 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 		}
 	}
 
+	//fmt.Println("makeInterface:")
+	//fmt.Println(retval)
 	b.addNode(retval)
 	return retval
-
-	return nil
 }

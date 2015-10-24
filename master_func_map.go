@@ -2,6 +2,8 @@ package main
 
 import "go/ast"
 
+//import "fmt"
+
 //master map uses singleton pattern, only one of them should be created in the program
 //only master should call creators for types
 type MasterFuncMap map[string]*Function
@@ -14,13 +16,13 @@ func (m MasterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Fun
 	namelessExpr.Params = normalized(expr.Params)
 	namelessExpr.Results = normalized(expr.Results)
 
-	s := name + String(namelessExpr)
+	s := StringInterfaceField(name, namelessExpr)
 
 	x, ok := m[s]
 
 	if ok && x.astNode == nil {
 		x.astNode = expr
-	} else {
+	} else if !ok {
 		m[s] = makeFunction(name, expr, namelessExpr)
 
 		//error checking

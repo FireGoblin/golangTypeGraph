@@ -4,12 +4,18 @@ import "go/ast"
 import "go/token"
 import "strings"
 
+import "fmt"
+
 //ordering is important
 func normalized(f *ast.FieldList) *ast.FieldList {
 	return removeNames(flattened(f))
 }
 
 func flattened(f *ast.FieldList) *ast.FieldList {
+	if f == nil {
+		return nil
+	}
+
 	x := &ast.FieldList{f.Opening, make([]*ast.Field, 0, len(f.List)*2), f.Closing}
 
 	for _, field := range f.List {
@@ -27,7 +33,11 @@ func flattened(f *ast.FieldList) *ast.FieldList {
 }
 
 func removeNames(f *ast.FieldList) *ast.FieldList {
-	x := &ast.FieldList{f.Opening, make([]*ast.Field, 0, len(f.List)), f.Closing}
+	if f == nil {
+		return nil
+	}
+
+	x := &ast.FieldList{f.Opening, make([]*ast.Field, len(f.List)), f.Closing}
 	copy(x.List, f.List)
 	for i := range x.List {
 		x.List[i].Names = nil
@@ -83,9 +93,13 @@ func String(expr ast.Node) string {
 		}
 		return x
 	case *ast.FieldList:
+		if e == nil {
+			return ""
+		}
 		x := ""
+		fmt.Println(e)
 		if e.Opening != token.NoPos {
-			x += ")"
+			x += "("
 		}
 		for _, v := range e.List {
 			x += String(v) + ", "
@@ -114,6 +128,6 @@ func String(expr ast.Node) string {
 }
 
 //*ast.Field in String() assumes a parameter style Field, this works for interface field
-func StringInterfaceField(f *ast.Field) string {
-	return f.Names[0].Name + String(f.Type.(*ast.FuncType).Params) + String(f.Type.(*ast.FuncType).Results)
+func StringInterfaceField(name string, expr *ast.FuncType) string {
+	return name + String(expr.Params) + " " + String(expr.Results)
 }

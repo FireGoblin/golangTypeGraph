@@ -7,7 +7,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io"
 	"os"
 	"strings"
 )
@@ -19,7 +18,8 @@ import (
 var filename = flag.String("file", "github.com/firegoblin/golangTypeGraph", "file to parse on, relative to $GOPATH/src")
 var includeTestFiles = flag.Bool("test", true, "whether or not to include test files in the graph")
 
-func processTypeDecl(obj *ast.Object, typ *Type, structList []*Struct, interfaceList []*Interface) {
+func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfaceList *[]*Interface) {
+	fmt.Println(obj.Decl)
 	decl, ok := obj.Decl.(*ast.TypeSpec)
 	if !ok {
 		panic("unexpected type in processTypeDecl")
@@ -27,9 +27,9 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList []*Struct, interface
 
 	switch decl.Type.(type) {
 	case *ast.StructType:
-		structList = append(structList, makeStruct(decl, typ.base))
+		*structList = append(*structList, makeStruct(decl, typ.base))
 	case *ast.InterfaceType:
-		interfaceList = append(interfaceList, makeInterface(decl, typ.base))
+		*interfaceList = append(*interfaceList, makeInterface(decl, typ.base))
 	default:
 		panic("unexpected type of s.Type")
 	}
@@ -54,11 +54,12 @@ func main() {
 		}, 0)
 	}
 	if err != nil {
-		panic("could not read original directory")
+		panic(err)
 	}
 
 	structList := make([]*Struct, 0)
 	interfaceList := make([]*Interface, 0)
+	funcList := make([]*Function, 0)
 
 	//ast.Print(fset, pkgs)
 
@@ -67,25 +68,52 @@ func main() {
 		for _, file := range pkg.Files {
 			//add all types to master list before processing delcarations
 			//minimizes creation of unknown types
-			for key := range pkg.Scope.Objects {
+			//fmt.Println("file.Scope.Objects:")
+			//fmt.Println(file.Scope.Objects)
+			for key := range file.Scope.Objects {
 				typeMap.lookupOrAdd(key)
 			}
 
+			//fmt.Println("typeMap:")
+			//fmt.Println(typeMap)
+
 			//processes all structs, interfaces, and embedded types
-			for key, scope := range pkg.Scope.Objects {
-				typ := typeMap.lookupOrAdd(key)
-				processTypeDecl(scope, typ, structList, interfaceList)
+			for key, scope := range file.Scope.Objects {
+				//non-receiver functions are found in scope
+				if scope.Kind == ast.Typ {
+					typ := typeMap.lookupOrAdd(key)
+					processTypeDecl(scope, typ, &structList, &interfaceList)
+				}
 			}
 
 			//processes all the function declarations
 			for _, decl := range file.Decls {
 				switch d := decl.(type) {
 				case *ast.FuncDecl:
-					funcMap.lookupOrAddFromExpr(d.Name.Name, d.Type)
+					//fmt.Println("funcDecl")
+					f := funcMap.lookupOrAddFromExpr(d.Name.Name, d.Type)
+					funcList = append(funcList, f)
+					if d.Recv != nil {
+						//fmt.Println("non-nil recv")
+						recv := typeMap.lookupOrAddFromExpr(d.Recv.List[0].Type).base.node
+						if recv != nil {
+							f.addReceiver(recv.(*Struct))
+							//fmt.Println(recv.(*Struct))
+						}
+					}
 				}
 			}
+
+			fmt.Println(interfaceList[0].requiredFunctions[0] == structList[1].receiverFunctions[0])
+
+			fmt.Println("funcMap:")
+			fmt.Println(funcMap)
 		}
 	}
+
+	fmt.Println("interface:", len(interfaceList))
+	fmt.Println("struct:", len(structList))
+	fmt.Println("func:", len(funcList))
 
 	for _, i := range interfaceList {
 		i.setImplementedBy(structList)
@@ -97,13 +125,13 @@ func main() {
 	}
 
 	g := gographviz.NewGraph()
-	g.SetName(*filename)
+	g.SetName((*filename)[strings.LastIndex(*filename, "/")+1:])
 	g.SetDir(true)
 	for _, s := range structList {
 		g.AddGraphableNode("G", s)
 	}
 	for _, i := range interfaceList {
-		g.AddGraphableNode("g", i)
+		g.AddGraphableNode("G", i)
 	}
 	s := g.String()
 	fmt.Println(s)

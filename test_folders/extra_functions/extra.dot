@@ -1,0 +1,15 @@
+
+digraph extra_functions {
+	Implements->OneFunction;
+	Partial->OneFunction;
+	Everything->OneFunction;
+	Everything->TwoFunctions;
+	Everything;
+	Implements;
+	NotImplementing;
+	OneFunction;
+	Partial;
+	TwoFunctions;
+
+}
+

@@ -5,6 +5,8 @@ package main
 import "go/ast"
 import "github.com/firegoblin/gographviz"
 
+//import "fmt"
+
 //A node is responsible for the incoming edges to it
 
 //A node type
@@ -38,8 +40,22 @@ type Struct struct {
 	astNode ast.Expr
 }
 
+func (s *Struct) AddFunction(f *Function) {
+	s.receiverFunctions = append(s.receiverFunctions, f)
+}
+
 func (s *Struct) String() string {
-	return s.target.name
+	retval := "Struct: " + s.target.name + "\n"
+	retval += "Fields:\n"
+	for _, v := range s.fields {
+		retval += v.String() + "\n"
+	}
+	retval += "Receiver Functions:\n"
+	for _, v := range s.receiverFunctions {
+		retval += v.String() + "\n"
+	}
+
+	return retval
 }
 
 func (s *Struct) Name() string {
@@ -127,7 +143,7 @@ func (s *Struct) implementsInterface(i *Interface) bool {
 
 func (s *Struct) setInterfacesImplemented(i []*Interface) {
 	retval := s.interfacesImplemented(i)
-	s.interfaceCache = make([]*Interface, 0, len(retval))
+	s.interfaceCache = make([]*Interface, len(retval))
 	copy(s.interfaceCache, retval)
 }
 
@@ -217,6 +233,8 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 		panic("unexpected type in makeStruct")
 	}
 
+	//fmt.Println("makeStruct:")
+	//fmt.Println(retval)
 	b.addNode(retval)
 	return retval
 }

@@ -31,7 +31,7 @@ func (m MasterTypeMap) lookupOrAddFromExpr(expr ast.Expr) *Type {
 
 	if ok && x.astNode == nil {
 		x.astNode = expr
-	} else {
+	} else if !ok {
 		m[s] = makeTypeFromExpr(expr)
 
 		//error checking
