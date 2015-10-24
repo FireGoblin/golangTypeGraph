@@ -1,0 +1,20 @@
+digraph redefined {
+	Implements->Partial;
+	Partial->Everything;
+	Everything->LoseItAll;
+	Everything->TwoFunctions;
+	Implements->OneFunction;
+	LoseItAll->OneFunction;
+	OneFunction->ThreeFunctions;
+	TwoFunctions->ThreeFunctions;
+	Everything;
+	Implements;
+	LoseItAll;
+	NotImplementing;
+	OneFunction;
+	Partial;
+	ThreeFunctions;
+	TwoFunctions;
+
+}
+
