@@ -21,10 +21,6 @@ type Interface struct {
 	//Draw edges from these
 	inheritedInterfaces []*Interface
 
-	//interfaces this is included in
-	//TODO: change to allow for being included in structs
-	includedIn []gographviz.GraphableNode
-
 	//structs
 	//Draw edges from these
 	implementedByCache []*Struct
@@ -143,16 +139,10 @@ func (i *Interface) allRequiredFunctions() []*Function {
 
 //for if interface is found as an Anonymous member of something else first
 func makeInterfaceUnknown(source *Interface, b *BaseType) *Interface {
-	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]gographviz.GraphableNode, 0), nil, nil, nil}
+	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), nil, nil, nil}
 	b.addNode(retval)
 
-	retval.addToIncludedIn(source)
-
 	return retval
-}
-
-func (i *Interface) addToIncludedIn(x gographviz.GraphableNode) {
-	i.includedIn = append(i.includedIn, x)
 }
 
 func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
@@ -171,7 +161,6 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 			node := lookup.base.node
 			if node != nil {
 				i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*Interface))
-				node.(*Interface).addToIncludedIn(i)
 			} else {
 				i.inheritedInterfaces = append(i.inheritedInterfaces, makeInterfaceUnknown(i, lookup.base))
 			}
@@ -193,7 +182,7 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 	}
 
 	//should only be used with declarations, if struct is in field names use makeStructUnknown
-	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]gographviz.GraphableNode, 0), nil, nil, interfaceType}
+	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), nil, nil, interfaceType}
 
 	for _, v := range interfaceType.Methods.List {
 		if len(v.Names) != 0 {
@@ -205,7 +194,6 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 			node := lookup.base.node
 			if node != nil {
 				retval.inheritedInterfaces = append(retval.inheritedInterfaces, node.(*Interface))
-				node.(*Interface).addToIncludedIn(retval)
 			} else {
 				retval.inheritedInterfaces = append(retval.inheritedInterfaces, makeInterfaceUnknown(retval, lookup.base))
 			}

@@ -1,0 +1,51 @@
+digraph mixed {
+	Implements->Partial;
+	TwoFunctions->OnlyTwo;
+	Partial->Everything;
+	OneFunction->Indirect;
+	TwoFunctions->Indirect;
+	TwoFunctions->Manual;
+	OneFunction->OnlyOne;
+	Everything->LoseItAll;
+	ThreeFunctions->Direct;
+	Implements->Mixed;
+	TwoFunctions->Mixed;
+	OnlyTwo->TwoFunctions;
+	Everything->TwoFunctions;
+	Indirect->TwoFunctions;
+	Manual->TwoFunctions;
+	Direct->TwoFunctions;
+	Mixed->TwoFunctions;
+	Partial->OneFunction;
+	Everything->OneFunction;
+	Indirect->OneFunction;
+	Manual->OneFunction;
+	OnlyOne->OneFunction;
+	Implements->OneFunction;
+	LoseItAll->OneFunction;
+	Direct->OneFunction;
+	Mixed->OneFunction;
+	OneFunction->ThreeFunctions;
+	TwoFunctions->ThreeFunctions;
+	Everything->ThreeFunctions;
+	Indirect->ThreeFunctions;
+	Manual->ThreeFunctions;
+	Direct->ThreeFunctions;
+	Mixed->ThreeFunctions;
+	Direct;
+	Everything;
+	Implements;
+	Indirect;
+	LoseItAll;
+	Manual;
+	Mixed;
+	NotImplementing;
+	OneFunction;
+	OnlyOne;
+	OnlyTwo;
+	Partial;
+	ThreeFunctions;
+	TwoFunctions;
+
+}
+

@@ -42,7 +42,7 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfac
 			case *Interface:
 				*interfaceList = append(*interfaceList, n.remakeInterface(decl))
 			case *Unknown:
-				*structList = append(*structList, n.remakeStruct(decl))
+				*interfaceList = append(*interfaceList, n.remakeInterface(decl))
 			}
 		}
 	case *ast.Ident:

@@ -27,9 +27,6 @@ type Struct struct {
 	//structs or interfaces included anonymously in this struct
 	inheritedTypes []*BaseType
 
-	//structs this type is included in anonymously
-	includedIn []*Struct
-
 	//interfaces this node implements
 	interfaceCache []*Interface
 
@@ -108,11 +105,11 @@ func (s *Struct) allReceiverFunctions() []*Function {
 	}
 
 	for _, v := range s.inheritedTypes {
-		switch w := v.(type) {
+		switch w := v.node.(type) {
 		case *Struct:
-			retval = append(retval, w.node.allReceiverFunctions()...)
+			retval = append(retval, w.allReceiverFunctions()...)
 		case *Interface:
-			retval = append(retval, w.node.allRequiredFunctions()...)
+			retval = append(retval, w.allRequiredFunctions()...)
 		}
 	}
 
@@ -191,16 +188,10 @@ func (s *Struct) getFields() []NamedType {
 	return nil
 }
 
-func (s *Struct) addToIncludedIn(x *Struct) {
-	s.includedIn = append(s.includedIn, x)
-}
-
 //for if struct is found as an Anonymous member of something else first
-func makeUnknown(source *Struct, b *BaseType) *Unkonwn {
-	retval := &Unknown{b, make([]*BaseType, 0)}
+func makeUnknown(source *Struct, b *BaseType) *Unknown {
+	retval := &Unknown{b}
 	b.addNode(retval)
-
-	retval.addToIncludedIn(source)
 
 	return retval
 }
@@ -212,7 +203,7 @@ func makeUnknown(source *Struct, b *BaseType) *Unkonwn {
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
 func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 	//should only be used with declarations, if struct is in field names use makeStructUnknown
-	retval := &Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, spec.Type}
+	retval := &Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]*BaseType, 0), nil, nil, spec.Type}
 
 	switch t := spec.Type.(type) {
 	case *ast.StructType:
@@ -225,13 +216,6 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 				lookup := typeMap.lookupOrAdd(String(v.Type))
 				if lookup.base.node != nil {
 					retval.inheritedTypes = append(retval.inheritedTypes, lookup.base)
-					switch n := lookup.base.node.(type) {
-					case *Struct:
-						n.addToIncludedIn(retval)
-					case *Interface:
-						//TODO: re-add when interface accepts struct in includedIn
-						//n.addToIncluedIn(retval)
-					}
 				} else {
 					retval.inheritedTypes = append(retval.inheritedTypes, makeUnknown(retval, lookup.base).target)
 				}
