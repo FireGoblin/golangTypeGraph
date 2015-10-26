@@ -57,6 +57,7 @@ func BaseTypeOf(expr ast.Expr) ast.Expr {
 	case *ast.ChanType:
 		return BaseTypeOf(e.Value)
 	case *ast.MapType:
+		//TODO: Better system for breaking up map types
 		return BaseTypeOf(e.Value)
 	}
 
@@ -70,6 +71,7 @@ func RecursiveTypeOf(expr ast.Expr) ast.Expr {
 	case *ast.ChanType:
 		return e.Value
 	case *ast.MapType:
+		//TODO: Better system for breaking up map types
 		return e.Value
 	}
 

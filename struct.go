@@ -52,7 +52,7 @@ func (s *Struct) String() string {
 }
 
 func (s *Struct) Name() string {
-	return s.target.name
+	return gographviz.SafeName(s.target.name)
 }
 
 //TODO: improve

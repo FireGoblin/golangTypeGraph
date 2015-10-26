@@ -40,7 +40,7 @@ func (i *Interface) String() string {
 }
 
 func (i *Interface) Name() string {
-	return i.target.name
+	return gographviz.SafeName(i.target.name)
 }
 
 //TODO: fill out

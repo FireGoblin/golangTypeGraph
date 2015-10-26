@@ -12,7 +12,7 @@ type Unknown struct {
 }
 
 func (u *Unknown) Name() string {
-	return u.target.name
+	return gographviz.SafeName(u.target.name)
 }
 
 func (u *Unknown) Attrs() gographviz.Attrs {
