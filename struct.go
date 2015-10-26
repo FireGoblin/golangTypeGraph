@@ -67,7 +67,25 @@ func (s *Struct) parentEdge() *gographviz.Edge {
 
 	//TODO: better handling of derivative types
 	//TODO: better attrs
-	return &gographviz.Edge{s.parent.String(), "", s.Name(), "", true, nil}
+	return &gographviz.Edge{s.parent.String(), "", s.Name(), "", true, parentAttrs()}
+}
+
+func inheritedAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "inherited"
+	return retval
+}
+
+func parentAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "parent"
+	return retval
+}
+
+func fieldAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "field"
+	return retval
 }
 
 //TODO: add parent edge
@@ -83,7 +101,26 @@ func (s *Struct) Edges() []*gographviz.Edge {
 
 	for _, v := range s.inheritedTypes {
 		//TODO: decide on attrs
-		retval = append(retval, &gographviz.Edge{v.node.Name(), "", s.Name(), "", true, nil})
+		retval = append(retval, &gographviz.Edge{v.node.Name(), "", s.Name(), "", true, inheritedAttrs()})
+	}
+
+	fieldList := make([]gographviz.GraphableNode, len(s.fields))
+	for _, f := range s.fields {
+		holder := f.Node()
+		if holder != nil {
+			//avoid duplicates
+			found := false
+			for _, v := range fieldList {
+				if holder == v {
+					found = true
+					break
+				}
+			}
+			if !found {
+				retval = append(retval, &gographviz.Edge{holder.Name(), "", s.Name(), "", true, fieldAttrs()})
+				fieldList = append(fieldList, holder)
+			}
+		}
 	}
 
 	if parentEdge != nil {

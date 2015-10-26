@@ -1,0 +1,41 @@
+digraph gographviz {
+	Attrs->NodeTYPE[ label=field ];
+	NodeTYPE->Nodes[ label=field ];
+	Attrs->SubGraphTYPE[ label=field ];
+	SubGraphTYPE->SubGraphs[ label=field ];
+	GraphTYPE->writer[ label=inherited ];
+	Interface->stmtVisitor[ label=field ];
+	Attrs->stmtVisitor[ label=field ];
+	Interface->graphVisitor[ label=field ];
+	Attrs->EdgeTYPE[ label=field ];
+	EdgeTYPE->Edges[ label=field ];
+	GraphTYPE->Escape[ label=inherited ];
+	Attrs->GraphTYPE[ label=field ];
+	Nodes->GraphTYPE[ label=field ];
+	Edges->GraphTYPE[ label=field ];
+	SubGraphs->GraphTYPE[ label=field ];
+	Relations->GraphTYPE[ label=field ];
+	Escape->Interface[ label=implements ];
+	NodeInterface->GraphableNode[ label=inherited ];
+	EdgesInterface->GraphableNode[ label=inherited ];
+	Attrs;
+	EdgeTYPE;
+	Edges;
+	EdgesInterface;
+	Escape;
+	GraphTYPE;
+	GraphableNode;
+	Interface;
+	NodeInterface;
+	NodeTYPE;
+	Nodes;
+	Relations;
+	SubGraphTYPE;
+	SubGraphs;
+	graphVisitor;
+	nilVisitor;
+	stmtVisitor;
+	writer;
+
+}
+

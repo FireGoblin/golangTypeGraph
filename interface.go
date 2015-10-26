@@ -48,6 +48,12 @@ func (i *Interface) Attrs() gographviz.Attrs {
 	return nil
 }
 
+func implementedAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "implements"
+	return retval
+}
+
 func (i *Interface) Edges() []*gographviz.Edge {
 	var retval []*gographviz.Edge
 
@@ -55,11 +61,11 @@ func (i *Interface) Edges() []*gographviz.Edge {
 
 	for _, v := range i.inheritedInterfaces {
 		//TODO: decide on attrs
-		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, nil})
+		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, inheritedAttrs()})
 	}
 	for _, v := range i.implementedByCache {
 		//TODO: decide on attrs
-		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, nil})
+		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, implementedAttrs()})
 	}
 
 	return retval
