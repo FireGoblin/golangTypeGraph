@@ -3,8 +3,6 @@ package main
 import "go/ast"
 import "github.com/firegoblin/gographviz"
 
-//import "fmt"
-
 //A node is responsible for the incoming edges to it
 
 //A node type

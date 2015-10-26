@@ -3,9 +3,8 @@ package main
 import "go/ast"
 import "go/token"
 import "strings"
-
-import "fmt"
 import "reflect"
+import "fmt"
 
 //ordering is important
 func normalized(f *ast.FieldList) *ast.FieldList {
@@ -97,7 +96,6 @@ func String(expr ast.Node) string {
 			return ""
 		}
 		x := ""
-		fmt.Println(e)
 		if e.Opening != token.NoPos {
 			x += "("
 		}

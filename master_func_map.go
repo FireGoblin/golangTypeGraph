@@ -2,8 +2,6 @@ package main
 
 import "go/ast"
 
-//import "fmt"
-
 //master map uses singleton pattern, only one of them should be created in the program
 //only master should call creators for types
 type MasterFuncMap map[string]*Function

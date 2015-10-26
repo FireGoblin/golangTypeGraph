@@ -1,8 +1,6 @@
 package main
 
-//import . "regexp"
 import "go/ast"
-import "fmt"
 
 type Function struct {
 	//name for function
@@ -29,8 +27,7 @@ type Function struct {
 }
 
 func (f *Function) String() string {
-	//return f.name + " " + f.target.name
-	return fmt.Sprintf("%p", f)
+	return f.name + " " + f.target.name
 }
 
 func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {

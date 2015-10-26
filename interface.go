@@ -3,8 +3,6 @@ package main
 import "go/ast"
 import "github.com/firegoblin/gographviz"
 
-import "fmt"
-
 //import . "regexp"
 
 //A node type
@@ -76,11 +74,6 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 	required := i.allRequiredFunctions()
 	have := s.allReceiverFunctions()
 
-	fmt.Println("struct:", s.Name())
-	fmt.Println("interface:", i.Name())
-	fmt.Println("required:", required)
-	fmt.Println("have:", have)
-
 	for _, v := range required {
 		found := false
 		for _, j := range have {
@@ -91,12 +84,10 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 		}
 
 		if !found {
-			fmt.Println("return false\n")
 			return false
 		}
 	}
 
-	fmt.Println("return true\n")
 	return true
 }
 
@@ -200,8 +191,6 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 		}
 	}
 
-	//fmt.Println("makeInterface:")
-	//fmt.Println(retval)
 	b.addNode(retval)
 	return retval
 }

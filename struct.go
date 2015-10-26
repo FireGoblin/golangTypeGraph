@@ -1,11 +1,7 @@
 package main
 
-//import . "regexp"
-//import "strings"
 import "go/ast"
 import "github.com/firegoblin/gographviz"
-
-//import "fmt"
 
 //A node is responsible for the incoming edges to it
 
@@ -33,7 +29,7 @@ type Struct struct {
 	//any attrs need for drawing in the graph
 	extraAttrs gographviz.Attrs
 
-	//either StructType or Ident for embedded type
+	//either StructType or parent type for embedded type
 	astNode ast.Expr
 }
 
@@ -224,12 +220,8 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 	default:
 		//redefined type
 		retval.parent = typeMap.lookupOrAddFromExpr(t)
-		//default:
-		//	panic("unexpected type in makeStruct")
 	}
 
-	//fmt.Println("makeStruct:")
-	//fmt.Println(retval)
 	b.addNode(retval)
 	return retval
 }
