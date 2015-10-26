@@ -9,6 +9,7 @@ type MasterTypeMap map[string]*Type
 var typeMap = MasterTypeMap(make(map[string]*Type))
 
 //TODO: Consider whether to attach the object
+//only call if the string is known to be a base type
 func (m MasterTypeMap) lookupOrAdd(s string) *Type {
 	x, ok := m[s]
 

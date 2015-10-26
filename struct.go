@@ -207,9 +207,9 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 		flattenedFields := flattened(t.Fields)
 		for _, v := range flattenedFields.List {
 			if len(v.Names) != 0 {
-				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
+				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAddFromExpr(v.Type)})
 			} else {
-				lookup := typeMap.lookupOrAdd(String(v.Type))
+				lookup := typeMap.lookupOrAddFromExpr(v.Type)
 				if lookup.base.node != nil {
 					retval.inheritedTypes = append(retval.inheritedTypes, lookup.base)
 				} else {

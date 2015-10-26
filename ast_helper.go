@@ -50,6 +50,32 @@ func FuncField(f *ast.FuncDecl) *ast.Field {
 	return &ast.Field{nil, []*ast.Ident{f.Name}, f.Type, nil, nil}
 }
 
+func BaseTypeOf(expr ast.Expr) ast.Expr {
+	switch e := expr.(type) {
+	case *ast.StarExpr:
+		return BaseTypeOf(e.X)
+	case *ast.ChanType:
+		return BaseTypeOf(e.Value)
+	case *ast.MapType:
+		return BaseTypeOf(e.Value)
+	}
+
+	return expr
+}
+
+func RecursiveTypeOf(expr ast.Expr) ast.Expr {
+	switch e := expr.(type) {
+	case *ast.StarExpr:
+		return e.X
+	case *ast.ChanType:
+		return e.Value
+	case *ast.MapType:
+		return e.Value
+	}
+
+	return nil
+}
+
 func String(expr ast.Node) string {
 	switch e := expr.(type) {
 	case *ast.Ident:

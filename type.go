@@ -1,17 +1,10 @@
 package main
 
-//import . "regexp"
-import "strings"
 import "go/ast"
 
 type Type struct {
-	name string
-	base *BaseType
-
-	//corresponds to the number of asterisks for the type
-	//exp: **string would have pointerLevel = 2
-	pointerLevel int
-
+	name    string
+	base    *BaseType
 	astNode ast.Expr
 }
 
@@ -28,15 +21,18 @@ func makeTypeFromExpr(expr ast.Expr) *Type {
 }
 
 func sharedMakeType(s string, expr ast.Expr) *Type {
-	baseType := strings.Trim(s, "*")
-	pLevel := len(s) - len(baseType)
+	var baseType string
+	if expr != nil {
+		baseType = String(BaseTypeOf(expr))
+	} else {
+		baseType = s
+	}
 
-	retval := Type{s, nil, pLevel, expr}
+	retval := Type{s, nil, expr}
 
-	if pLevel == 0 {
+	if RecursiveTypeOf(expr) == nil {
 		b := makeBase(baseType)
 		retval.base = b
-		b.addType(&retval)
 	} else {
 		b, ok := typeMap[baseType]
 		if !ok {
@@ -44,12 +40,12 @@ func sharedMakeType(s string, expr ast.Expr) *Type {
 		}
 
 		retval.base = b.base
-		b.base.addType(&retval)
 
+		next := RecursiveTypeOf(expr)
 		//create lower type if not created yet
-		_, ok = typeMap[s[1:]]
+		_, ok = typeMap[String(next)]
 		if !ok {
-			makeTypeRecursive(s[1:], retval.base, pLevel-1, expr.(*ast.StarExpr).X)
+			makeTypeRecursive(String(next), retval.base, next)
 		}
 	}
 
@@ -57,14 +53,16 @@ func sharedMakeType(s string, expr ast.Expr) *Type {
 }
 
 //never call outside of makeType
-func makeTypeRecursive(s string, b *BaseType, pLevel int, expr ast.Expr) {
-	x := Type{s, b, pLevel, expr}
+func makeTypeRecursive(s string, b *BaseType, expr ast.Expr) {
+	x := Type{s, b, expr}
 	typeMap[s] = &x
-	b.addType(&x)
 
-	_, ok := typeMap[s[1:]]
-	if !ok {
-		makeTypeRecursive(s[1:], b, pLevel-1, expr.(*ast.StarExpr).X)
+	next := RecursiveTypeOf(expr)
+	if next != nil {
+		_, ok := typeMap[String(next)]
+		if !ok {
+			makeTypeRecursive(String(next), b, next)
+		}
 	}
 }
 

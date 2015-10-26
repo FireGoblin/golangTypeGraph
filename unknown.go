@@ -32,9 +32,9 @@ func (u *Unknown) remakeStruct(spec *ast.TypeSpec) *Struct {
 		flattenedFields := flattened(t.Fields)
 		for _, v := range flattenedFields.List {
 			if len(v.Names) != 0 {
-				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
+				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAddFromExpr(v.Type)})
 			} else {
-				lookup := typeMap.lookupOrAdd(String(v.Type))
+				lookup := typeMap.lookupOrAddFromExpr(v.Type)
 				if lookup.base.node != nil {
 					retval.inheritedTypes = append(retval.inheritedTypes, lookup.base)
 				} else {
@@ -42,11 +42,9 @@ func (u *Unknown) remakeStruct(spec *ast.TypeSpec) *Struct {
 				}
 			}
 		}
-	case *ast.Ident:
-		//redefined type
-		retval.parent = typeMap.lookupOrAdd(t.Name)
 	default:
-		panic("unexpected type in makeStruct")
+		//redefined type
+		retval.parent = typeMap.lookupOrAddFromExpr(t)
 	}
 
 	retval.target.addNode(retval)
@@ -67,7 +65,7 @@ func (u *Unknown) remakeInterface(spec *ast.TypeSpec) *Interface {
 			f.addInterface(retval)
 			retval.requiredFunctions = append(retval.requiredFunctions, f)
 		} else {
-			lookup := typeMap.lookupOrAdd(String(v.Type))
+			lookup := typeMap.lookupOrAddFromExpr(v.Type)
 			node := lookup.base.node
 			if node != nil {
 				retval.inheritedInterfaces = append(retval.inheritedInterfaces, node.(*Interface))

@@ -148,7 +148,7 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 			f.addInterface(i)
 			i.requiredFunctions = append(i.requiredFunctions, f)
 		} else {
-			lookup := typeMap.lookupOrAdd(String(v.Type))
+			lookup := typeMap.lookupOrAddFromExpr(v.Type)
 			node := lookup.base.node
 			if node != nil {
 				i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*Interface))
@@ -181,7 +181,7 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 			f.addInterface(retval)
 			retval.requiredFunctions = append(retval.requiredFunctions, f)
 		} else {
-			lookup := typeMap.lookupOrAdd(String(v.Type))
+			lookup := typeMap.lookupOrAddFromExpr(v.Type)
 			node := lookup.base.node
 			if node != nil {
 				retval.inheritedInterfaces = append(retval.inheritedInterfaces, node.(*Interface))

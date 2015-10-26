@@ -31,7 +31,7 @@ func (f *Function) String() string {
 }
 
 func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
-	typ := typeMap.lookupOrAdd(String(f))
+	typ := typeMap.lookupOrAddFromExpr(f)
 
 	var paramsProcessed = make([]*Type, 0)
 	var resultsProcessed = make([]*Type, 0)
