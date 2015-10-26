@@ -1,0 +1,32 @@
+digraph goActorBinaryTree {
+	contains->operation;
+	gc->operation;
+	getElems->operation;
+	copyInsert->operation;
+	insert->operation;
+	remove->operation;
+	contains->operationReply;
+	containsResult->operationReply;
+	gc->operationReply;
+	getElems->operationReply;
+	copyInsert->operationReply;
+	insert->operationReply;
+	operationFinished->operationReply;
+	remove->operationReply;
+	BinaryTreeSet;
+	binaryTreeNode;
+	contains;
+	containsResult;
+	copyInsert;
+	gc;
+	getElems;
+	insert;
+	operation;
+	operationFinished;
+	operationReply;
+	remove;
+	replyTracker;
+	testProbe;
+
+}
+

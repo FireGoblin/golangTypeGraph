@@ -5,6 +5,7 @@ import "go/token"
 import "strings"
 
 import "fmt"
+import "reflect"
 
 //ordering is important
 func normalized(f *ast.FieldList) *ast.FieldList {
@@ -58,15 +59,14 @@ func String(expr ast.Node) string {
 		return "*" + String(e.X)
 	case *ast.SelectorExpr:
 		return String(e.X) + "." + String(e.Sel)
+	case *ast.BasicLit:
+		return e.Value
+	case *ast.Ellipsis:
+		return "..."
+	case *ast.BinaryExpr:
+		return String(e.X) + " " + e.Op.String() + " " + String(e.Y)
 	case *ast.ArrayType:
-		switch sub := e.Len.(type) {
-		case *ast.BasicLit:
-			return "[" + sub.Value + "]" + String(e.Elt)
-		case nil:
-			return "[]" + String(e.Elt)
-		default:
-			panic("unexpected type of ast.Expr in ast.ArrayType.Len")
-		}
+		return "[" + String(e.Len) + "]" + String(e.Elt)
 	case *ast.ChanType:
 		switch e.Dir {
 		case ast.SEND:
@@ -122,8 +122,10 @@ func String(expr ast.Node) string {
 		x += " "
 		x += String(e.Type)
 		return x
+	case nil:
+		return ""
 	default:
-		panic("unexpected type of ast.Expr called String()")
+		panic(fmt.Sprintln("unexpected type of ast.Expr called String()", reflect.TypeOf(expr)))
 	}
 }
 
