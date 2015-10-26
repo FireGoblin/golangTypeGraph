@@ -65,13 +65,13 @@ func (s *Struct) Attrs() gographviz.Attrs {
 }
 
 func (s *Struct) parentEdge() *gographviz.Edge {
-	if s.parent == nil {
+	if s.parent == nil || s.parent.base.node == nil {
 		return nil
 	}
 
-	parentNode := s.parent.base.node
+	//TODO: better handling of derivative types
 	//TODO: better attrs
-	return &gographviz.Edge{parentNode.Name(), "", s.Name(), "", true, nil}
+	return &gographviz.Edge{s.parent.String(), "", s.Name(), "", true, nil}
 }
 
 //TODO: add parent edge
@@ -221,11 +221,11 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 				}
 			}
 		}
-	case *ast.Ident:
-		//redefined type
-		retval.parent = typeMap.lookupOrAdd(t.Name)
 	default:
-		panic("unexpected type in makeStruct")
+		//redefined type
+		retval.parent = typeMap.lookupOrAddFromExpr(t)
+		//default:
+		//	panic("unexpected type in makeStruct")
 	}
 
 	//fmt.Println("makeStruct:")
