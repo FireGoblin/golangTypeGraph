@@ -23,7 +23,7 @@ type Interface struct {
 
 	//interfaces this is included in
 	//TODO: change to allow for being included in structs
-	includedIn []*Interface
+	includedIn []gographviz.GraphableNode
 
 	//structs
 	//Draw edges from these
@@ -143,15 +143,15 @@ func (i *Interface) allRequiredFunctions() []*Function {
 
 //for if interface is found as an Anonymous member of something else first
 func makeInterfaceUnknown(source *Interface, b *BaseType) *Interface {
-	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0), nil, nil, nil}
+	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]gographviz.GraphableNode, 0), nil, nil, nil}
 	b.addNode(retval)
 
-	retval.includedIn = append(retval.includedIn, source)
+	retval.addToIncludedIn(source)
 
 	return retval
 }
 
-func (i *Interface) addToIncludedIn(x *Interface) {
+func (i *Interface) addToIncludedIn(x gographviz.GraphableNode) {
 	i.includedIn = append(i.includedIn, x)
 }
 
@@ -193,7 +193,7 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 	}
 
 	//should only be used with declarations, if struct is in field names use makeStructUnknown
-	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]*Interface, 0), nil, nil, interfaceType}
+	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), make([]gographviz.GraphableNode, 0), nil, nil, interfaceType}
 
 	for _, v := range interfaceType.Methods.List {
 		if len(v.Names) != 0 {

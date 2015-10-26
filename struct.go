@@ -25,7 +25,7 @@ type Struct struct {
 	receiverFunctions []*Function
 
 	//structs or interfaces included anonymously in this struct
-	inheritedTypes []gographviz.GraphableNode
+	inheritedTypes []*BaseType
 
 	//structs this type is included in anonymously
 	includedIn []*Struct
@@ -90,7 +90,7 @@ func (s *Struct) Edges() []*gographviz.Edge {
 
 	for _, v := range s.inheritedTypes {
 		//TODO: decide on attrs
-		retval = append(retval, &gographviz.Edge{v.Name(), "", s.Name(), "", true, nil})
+		retval = append(retval, &gographviz.Edge{v.node.Name(), "", s.Name(), "", true, nil})
 	}
 
 	if parentEdge != nil {
@@ -110,9 +110,9 @@ func (s *Struct) allReceiverFunctions() []*Function {
 	for _, v := range s.inheritedTypes {
 		switch w := v.(type) {
 		case *Struct:
-			retval = append(retval, w.allReceiverFunctions()...)
+			retval = append(retval, w.node.allReceiverFunctions()...)
 		case *Interface:
-			retval = append(retval, w.allRequiredFunctions()...)
+			retval = append(retval, w.node.allRequiredFunctions()...)
 		}
 	}
 
@@ -196,42 +196,13 @@ func (s *Struct) addToIncludedIn(x *Struct) {
 }
 
 //for if struct is found as an Anonymous member of something else first
-func makeStructUnknown(source *Struct, b *BaseType) *Struct {
-	retval := &Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]gographviz.GraphableNode, 0), make([]*Struct, 0), nil, nil, nil}
+func makeUnknown(source *Struct, b *BaseType) *Unkonwn {
+	retval := &Unknown{b, make([]*BaseType, 0)}
 	b.addNode(retval)
 
-	retval.includedIn = append(retval.includedIn, source)
+	retval.addToIncludedIn(source)
 
 	return retval
-}
-
-func (s *Struct) remakeStruct(spec *ast.TypeSpec) *Struct {
-	switch t := spec.Type.(type) {
-	case *ast.StructType:
-		//struct
-		flattenedFields := flattened(t.Fields)
-		for _, v := range flattenedFields.List {
-			if len(v.Names) != 0 {
-				s.fields = append(s.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
-			} else {
-				lookup := typeMap.lookupOrAdd(String(v.Type))
-				node := lookup.base.node
-				if node != nil {
-					s.inheritedTypes = append(s.inheritedTypes, node)
-					node.(*Struct).addToIncludedIn(s)
-				} else {
-					s.inheritedTypes = append(s.inheritedTypes, makeStructUnknown(s, lookup.base))
-				}
-			}
-		}
-	case *ast.Ident:
-		//redefined type
-		s.parent = typeMap.lookupOrAdd(t.Name)
-	default:
-		panic("unexpected type in makeStruct")
-	}
-
-	return s
 }
 
 //possibilities for lines:
@@ -252,12 +223,17 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAdd(String(v.Type))})
 			} else {
 				lookup := typeMap.lookupOrAdd(String(v.Type))
-				node := lookup.base.node
-				if node != nil {
-					retval.inheritedTypes = append(retval.inheritedTypes, node)
-					node.(*Struct).addToIncludedIn(retval)
+				if lookup.base.node != nil {
+					retval.inheritedTypes = append(retval.inheritedTypes, lookup.base)
+					switch n := lookup.base.node.(type) {
+					case *Struct:
+						n.addToIncludedIn(retval)
+					case *Interface:
+						//TODO: re-add when interface accepts struct in includedIn
+						//n.addToIncluedIn(retval)
+					}
 				} else {
-					retval.inheritedTypes = append(retval.inheritedTypes, makeStructUnknown(retval, lookup.base))
+					retval.inheritedTypes = append(retval.inheritedTypes, makeUnknown(retval, lookup.base).target)
 				}
 			}
 		}

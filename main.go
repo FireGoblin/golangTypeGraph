@@ -32,19 +32,24 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfac
 		if node == nil {
 			*structList = append(*structList, makeStruct(decl, typ.base))
 		} else {
-			*structList = append(*structList, node.(*Struct).remakeStruct(decl))
+			*structList = append(*structList, node.(*Unknown).remakeStruct(decl))
 		}
 	case *ast.InterfaceType:
 		if node == nil {
 			*interfaceList = append(*interfaceList, makeInterface(decl, typ.base))
 		} else {
-			*interfaceList = append(*interfaceList, node.(*Interface).remakeInterface(decl))
+			switch n := node.(type) {
+			case *Interface:
+				*interfaceList = append(*interfaceList, n.remakeInterface(decl))
+			case *Unknown:
+				*structList = append(*structList, n.remakeStruct(decl))
+			}
 		}
 	case *ast.Ident:
 		if node == nil {
 			*structList = append(*structList, makeStruct(decl, typ.base))
 		} else {
-			*structList = append(*structList, node.(*Struct).remakeStruct(decl))
+			*structList = append(*structList, node.(*Unknown).remakeStruct(decl))
 		}
 	default:
 		panic("unexpected type of s.Type")
