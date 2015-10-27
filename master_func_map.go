@@ -9,7 +9,7 @@ type masterFuncMap map[string]*Function
 var funcMap = masterFuncMap(make(map[string]*Function))
 
 func (m masterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Function {
-	var namelessExpr = &ast.FuncType{0, nil, nil}
+	namelessExpr := &ast.FuncType{0, nil, nil}
 
 	namelessExpr.Params = Normalized(expr.Params)
 	namelessExpr.Results = Normalized(expr.Results)

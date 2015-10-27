@@ -16,18 +16,24 @@ func Flattened(f *ast.FieldList) *ast.FieldList {
 		return nil
 	}
 
+	fmt.Println("before flattend:", String(f))
+
 	x := &ast.FieldList{f.Opening, make([]*ast.Field, 0, len(f.List)*2), f.Closing}
 
 	for _, field := range f.List {
 		if len(field.Names) > 1 {
 			for j := 0; j < len(field.Names); j++ {
-				x.List = append(x.List, field)
-				x.List[len(x.List)-1].Names = []*ast.Ident{field.Names[j]}
+				local := *field
+				local.Names = []*ast.Ident{ast.NewIdent(field.Names[j].Name)}
+				x.List = append(x.List, &local)
 			}
 		} else {
-			x.List = append(x.List, field)
+			local := *field
+			x.List = append(x.List, &local)
 		}
 	}
+
+	fmt.Println("after flattened:", String(x))
 
 	return x
 }
@@ -37,11 +43,12 @@ func RemoveNames(f *ast.FieldList) *ast.FieldList {
 		return nil
 	}
 
-	x := &ast.FieldList{f.Opening, make([]*ast.Field, len(f.List)), f.Closing}
+	x := &ast.FieldList{f.Opening, make([]*ast.Field, 0, len(f.List)), f.Closing}
 
-	copy(x.List, f.List)
-	for i := range x.List {
-		x.List[i].Names = nil
+	for _, field := range f.List {
+		local := *field
+		local.Names = nil
+		x.List = append(x.List, &local)
 	}
 
 	return x
