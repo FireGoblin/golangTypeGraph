@@ -85,17 +85,17 @@ func RecursiveTypeOf(expr ast.Expr) ast.Expr {
 func ReplaceSelector(expr ast.Expr) (replaced ast.Expr, X *ast.Ident) {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
-		e.X, X = ReplaceSelector(e.X)
-		return e, X
+		a, X := ReplaceSelector(e.X)
+		return &ast.StarExpr{e.Star, a}, X
 	case *ast.ChanType:
-		e.Value, X = ReplaceSelector(e.Value)
-		return e, X
+		a, X := ReplaceSelector(e.Value)
+		return &ast.ChanType{e.Begin, e.Arrow, e.Dir, a}, X
 	case *ast.MapType:
-		e.Value, X = ReplaceSelector(e.Value)
-		return e, X
+		a, X := ReplaceSelector(e.Value)
+		return &ast.MapType{e.Map, e.Key, a}, X
 	case *ast.ArrayType:
-		e.Elt, X = ReplaceSelector(e.Elt)
-		return e, X
+		a, X := ReplaceSelector(e.Elt)
+		return &ast.ArrayType{e.Lbrack, e.Len, a}, X
 	case *ast.SelectorExpr:
 		return e.Sel, e.X.(*ast.Ident)
 	}
