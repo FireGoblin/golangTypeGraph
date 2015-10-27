@@ -54,7 +54,7 @@ func (s *Struct) label() string {
 	}
 
 	for _, v := range s.fields {
-		retval += v.String() + "\\l"
+		retval += v.StringRelativePkg(s.target.pkgName) + "\\l"
 	}
 
 	retval += "|"

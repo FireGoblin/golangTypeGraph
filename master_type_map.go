@@ -60,12 +60,12 @@ func (m MasterTypeMap) lookupOrAddWithPkg(s string, pkg string) *Type {
 }
 
 func (m MasterTypeMap) lookupOrAddFromExpr(expr ast.Expr) *Type {
-	selector, ok := expr.(*ast.SelectorExpr)
+	selector, pkg := ReplaceSelector(expr)
 	targetPkg := m.currentPkg
 	targetExpr := expr
-	if ok {
-		targetPkg = String(selector.X)
-		targetExpr = selector.Sel
+	if pkg != nil {
+		targetPkg = String(pkg)
+		targetExpr = selector
 	}
 
 	s := String(targetExpr)

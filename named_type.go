@@ -15,6 +15,10 @@ func (n NamedType) String() string {
 	return n.name + " " + n.target.String()
 }
 
+func (n NamedType) StringRelativePkg(pkg string) string {
+	return n.name + " " + n.target.StringRelativePkg(pkg)
+}
+
 func (n NamedType) Node() gographviz.GraphableNode {
 	return n.target.base.node
 }
