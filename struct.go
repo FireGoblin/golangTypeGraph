@@ -101,7 +101,7 @@ func (s *Struct) label() string {
 	}
 
 	for _, v := range s.inheritedTypes {
-		retval += v.String() + "\\l"
+		retval += v.StringRelativePkg(s.target.pkgName) + "\\l"
 	}
 
 	for _, v := range s.fields {

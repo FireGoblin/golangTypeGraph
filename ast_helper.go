@@ -16,8 +16,6 @@ func Flattened(f *ast.FieldList) *ast.FieldList {
 		return nil
 	}
 
-	fmt.Println("before flattend:", String(f))
-
 	x := &ast.FieldList{f.Opening, make([]*ast.Field, 0, len(f.List)*2), f.Closing}
 
 	for _, field := range f.List {
@@ -32,8 +30,6 @@ func Flattened(f *ast.FieldList) *ast.FieldList {
 			x.List = append(x.List, &local)
 		}
 	}
-
-	fmt.Println("after flattened:", String(x))
 
 	return x
 }

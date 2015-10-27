@@ -20,6 +20,7 @@ var includeTestFiles = flag.Bool("test", true, "whether or not to include test f
 var defaultPackageName = flag.String("pkg", "main", "the package that will not have its types prefiexed with package name")
 var onlyExports = flag.Bool("exports", false, "marks whether only exported nodes are shown")
 var withImports = flag.Bool("imports", true, "whether or not to parse import directories recrusively")
+var implementMax = flag.Int("imax", 9, "the maximum number of structs implementing an interface before edges are not drawn")
 
 func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfaceList *[]*Interface) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)

@@ -36,13 +36,17 @@ func (b BaseType) Name() string {
 	return retval
 }
 
-func (b BaseType) String() string {
+func (b BaseType) StringRelativePkg(pkg string) string {
 	retval := b.pkgName
-	if retval == *defaultPackageName {
+	if retval == pkg {
 		retval = ""
 	} else if retval != "" {
 		retval += "."
 	}
 	retval += b.name
 	return retval
+}
+
+func (b BaseType) String() string {
+	return b.StringRelativePkg(*defaultPackageName)
 }

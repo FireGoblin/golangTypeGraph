@@ -54,17 +54,25 @@ func (i *Interface) Edges() []*gographviz.Edge {
 	}
 	for _, v := range i.implementedByCache {
 		//TODO: decide on attrs
-		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, implementedAttrs()})
+		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, i.implementedAttrs()})
 	}
 
 	return retval
 }
 
+func (i *Interface) highlyImplemented() bool {
+	return len(i.implementedByCache) > *implementMax
+}
+
 func (i *Interface) label() string {
 	retval := "\"{" + i.String() + "|"
 
+	if i.highlyImplemented() {
+		retval += "*HIGHLY IMPLMENTED*\\n"
+	}
+
 	for _, v := range i.inheritedInterfaces {
-		retval += v.String() + "\\n"
+		retval += v.target.StringRelativePkg(i.target.pkgName) + "\\n"
 	}
 
 	retval += "|"
@@ -78,10 +86,14 @@ func (i *Interface) label() string {
 	return retval
 }
 
-func implementedAttrs() map[string]string {
+func (i *Interface) implementedAttrs() map[string]string {
 	retval := make(map[string]string)
 	retval["label"] = "implements"
-	retval["style"] = "bold"
+	if i.highlyImplemented() {
+		retval["style"] = "invis"
+	} else {
+		retval["style"] = "bold"
+	}
 	return retval
 }
 
