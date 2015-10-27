@@ -98,7 +98,6 @@ func main() {
 				}
 			}
 			typeMap.currentPkg = pkg.Name
-			funcMap.currentPkg = pkg.Name
 			for _, file := range pkg.Files {
 				//add imports to directories to check
 				if *withImports {
