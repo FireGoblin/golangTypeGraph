@@ -48,7 +48,3 @@ func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
 
 	return retval
 }
-
-func (f Function) isReceiverFunction() bool {
-	return f.isReceiver
-}

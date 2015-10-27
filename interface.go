@@ -45,7 +45,9 @@ func (i *Interface) Name() string {
 
 //TODO: fill out
 func (i *Interface) Attrs() gographviz.Attrs {
-	return nil
+	retval := make(map[string]string)
+	retval["shape"] = "Mrecord"
+	return retval
 }
 
 func implementedAttrs() map[string]string {

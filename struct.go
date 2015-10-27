@@ -58,7 +58,9 @@ func (s *Struct) Name() string {
 
 //TODO: improve
 func (s *Struct) Attrs() gographviz.Attrs {
-	return nil
+	retval := make(map[string]string)
+	retval["shape"] = "record"
+	return retval
 }
 
 func (s *Struct) parentEdge() *gographviz.Edge {
