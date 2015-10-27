@@ -15,7 +15,7 @@ type BaseType struct {
 }
 
 //type handles associating allLevels
-func makeBase(s string, pkg string) *BaseType {
+func newBase(s string, pkg string) *BaseType {
 	x := BaseType{s, nil, pkg}
 	return &x
 }

@@ -25,7 +25,7 @@ func (f *Function) String() string {
 	return StringInterfaceField(f.name, f.astNode)
 }
 
-func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
+func newFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
 	typ := typeMap.lookupOrAddFromExpr(f)
 
 	var paramsProcessed = make([]*Type, 0)

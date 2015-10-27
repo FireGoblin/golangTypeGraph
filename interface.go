@@ -36,36 +36,10 @@ func (i *Interface) Name() string {
 	return i.target.Name()
 }
 
-func (i *Interface) label() string {
-	retval := "\"{" + i.String() + "|"
-
-	for _, v := range i.inheritedInterfaces {
-		retval += v.String() + "\\n"
-	}
-
-	retval += "|"
-
-	for _, v := range i.requiredFunctions {
-		retval += v.String() + "\\l"
-	}
-
-	retval += "}\""
-
-	return retval
-}
-
-//TODO: fill out
 func (i *Interface) Attrs() gographviz.Attrs {
 	retval := make(map[string]string)
 	retval["shape"] = "Mrecord"
 	retval["label"] = i.label()
-	return retval
-}
-
-func implementedAttrs() map[string]string {
-	retval := make(map[string]string)
-	retval["label"] = "implements"
-	retval["style"] = "bold"
 	return retval
 }
 
@@ -86,10 +60,35 @@ func (i *Interface) Edges() []*gographviz.Edge {
 	return retval
 }
 
+func (i *Interface) label() string {
+	retval := "\"{" + i.String() + "|"
+
+	for _, v := range i.inheritedInterfaces {
+		retval += v.String() + "\\n"
+	}
+
+	retval += "|"
+
+	for _, v := range i.requiredFunctions {
+		retval += v.String() + "\\l"
+	}
+
+	retval += "}\""
+
+	return retval
+}
+
+func implementedAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "implements"
+	retval["style"] = "bold"
+	return retval
+}
+
 //no mutation
 func (i *Interface) isImplementedBy(s *Struct) bool {
 	required := i.allRequiredFunctions()
-	have := s.allReceiverFunctions()
+	have := s.allreceiverFunctions()
 
 	for _, v := range required {
 		found := false
@@ -184,7 +183,7 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 
 //possibilities for lines:
 //Type -> inheritedStruct
-//(comma seperated list of names) Type -> NamedTypes
+//(comma seperated list of names) Type -> namedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
 func newInterface(spec *ast.TypeSpec, b *BaseType) *Interface {

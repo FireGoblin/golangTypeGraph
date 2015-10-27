@@ -7,11 +7,11 @@ import "reflect"
 import "fmt"
 
 //ordering is important
-func normalized(f *ast.FieldList) *ast.FieldList {
-	return removeNames(flattened(f))
+func Normalized(f *ast.FieldList) *ast.FieldList {
+	return RemoveNames(Flattened(f))
 }
 
-func flattened(f *ast.FieldList) *ast.FieldList {
+func Flattened(f *ast.FieldList) *ast.FieldList {
 	if f == nil {
 		return nil
 	}
@@ -32,7 +32,7 @@ func flattened(f *ast.FieldList) *ast.FieldList {
 	return x
 }
 
-func removeNames(f *ast.FieldList) *ast.FieldList {
+func RemoveNames(f *ast.FieldList) *ast.FieldList {
 	if f == nil {
 		return nil
 	}
@@ -104,27 +104,27 @@ func ReplaceSelector(expr ast.Expr) (replaced ast.Expr, X *ast.Ident) {
 	return expr, nil
 }
 
-func StringWithPkg(pkg string, expr ast.Expr) string {
-	return String(InsertPkg(pkg, expr))
+func stringWithPkg(pkg string, expr ast.Expr) string {
+	return String(insertPkg(pkg, expr))
 }
 
-func InsertPkg(pkg string, expr ast.Expr) ast.Expr {
+func insertPkg(pkg string, expr ast.Expr) ast.Expr {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
 		local := *e
-		local.X = InsertPkg(pkg, e.X)
+		local.X = insertPkg(pkg, e.X)
 		return &local
 	case *ast.ChanType:
 		local := *e
-		local.Value = InsertPkg(pkg, e.Value)
+		local.Value = insertPkg(pkg, e.Value)
 		return &local
 	case *ast.MapType:
 		local := *e
-		local.Value = InsertPkg(pkg, e.Value)
+		local.Value = insertPkg(pkg, e.Value)
 		return &local
 	case *ast.ArrayType:
 		local := *e
-		local.Elt = InsertPkg(pkg, e.Elt)
+		local.Elt = insertPkg(pkg, e.Elt)
 		return &local
 	case *ast.Ident:
 		return &ast.SelectorExpr{ast.NewIdent(pkg), e}

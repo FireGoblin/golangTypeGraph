@@ -4,14 +4,14 @@ import "go/ast"
 
 //master map uses singleton pattern, only one of them should be created in the program
 //only master should call creators for types
-type MasterFuncMap struct {
+type masterFuncMap struct {
 	theMap     map[string]map[string]*Function
 	currentPkg string
 }
 
-var funcMap = MasterFuncMap{make(map[string]map[string]*Function), ""}
+var funcMap = masterFuncMap{make(map[string]map[string]*Function), ""}
 
-func (m MasterFuncMap) currentMap() map[string]*Function {
+func (m masterFuncMap) currentMap() map[string]*Function {
 	_, ok := m.theMap[m.currentPkg]
 	if !ok {
 		m.theMap[m.currentPkg] = make(map[string]*Function)
@@ -19,7 +19,7 @@ func (m MasterFuncMap) currentMap() map[string]*Function {
 	return m.theMap[m.currentPkg]
 }
 
-func (m MasterFuncMap) getPkg(pkg string) map[string]*Function {
+func (m masterFuncMap) getPkg(pkg string) map[string]*Function {
 	_, ok := m.theMap[pkg]
 	if !ok {
 		m.theMap[pkg] = make(map[string]*Function)
@@ -27,11 +27,11 @@ func (m MasterFuncMap) getPkg(pkg string) map[string]*Function {
 	return m.theMap[pkg]
 }
 
-func (m MasterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Function {
+func (m masterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Function {
 	namelessExpr := &ast.FuncType{0, nil, nil}
 
-	namelessExpr.Params = normalized(expr.Params)
-	namelessExpr.Results = normalized(expr.Results)
+	namelessExpr.Params = Normalized(expr.Params)
+	namelessExpr.Results = Normalized(expr.Results)
 
 	s := StringInterfaceField(name, namelessExpr)
 
@@ -40,7 +40,7 @@ func (m MasterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Fun
 	if ok && x.astNode == nil {
 		x.astNode = expr
 	} else if !ok {
-		m.currentMap()[s] = makeFunction(name, expr, namelessExpr)
+		m.currentMap()[s] = newFunction(name, expr, namelessExpr)
 
 		//error checking
 		x, ok = m.currentMap()[s]

@@ -31,7 +31,7 @@ func sharedNewType(s string, expr ast.Expr, pkg string) *Type {
 	retval := Type{s, nil, expr}
 
 	if RecursiveTypeOf(expr) == nil {
-		b := makeBase(baseType, pkg)
+		b := newBase(baseType, pkg)
 		retval.base = b
 	} else {
 		b, ok := typeMap.getPkg(pkg)[baseType]
@@ -75,5 +75,5 @@ func (t Type) StringRelativePkg(pkg string) string {
 		return t.name
 	}
 
-	return StringWithPkg(t.base.pkgName, t.astNode)
+	return stringWithPkg(t.base.pkgName, t.astNode)
 }

@@ -32,7 +32,7 @@ func newUnknown(source *Struct, b *BaseType) *unknown {
 }
 
 func (u *unknown) remakeStruct(spec *ast.TypeSpec) *Struct {
-	retval := &Struct{u.target, nil, make([]NamedType, 0), make([]ReceiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
+	retval := &Struct{u.target, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
 
 	retval.remakeStructInternals(spec)
 

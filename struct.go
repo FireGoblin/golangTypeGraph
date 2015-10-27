@@ -15,10 +15,10 @@ type Struct struct {
 	parent *Type
 
 	//fields should only be empty when a redefined type
-	fields []NamedType
+	fields []namedType
 
 	//receiver functions on this type
-	receiverFunctions []ReceiverFunction
+	receiverFunctions []receiverFunction
 
 	//structs or interfaces included anonymously in this struct
 	inheritedTypes []*BaseType
@@ -34,7 +34,7 @@ type Struct struct {
 }
 
 func (s *Struct) addFunction(f *Function, field *ast.Field) {
-	s.receiverFunctions = append(s.receiverFunctions, NewReceiverFunction(f, field))
+	s.receiverFunctions = append(s.receiverFunctions, newReceiverFunction(f, field))
 	f.isReceiver = true
 }
 
@@ -151,7 +151,7 @@ func fieldAttrs() map[string]string {
 }
 
 //no mutation
-func (s *Struct) allReceiverFunctions() []*Function {
+func (s *Struct) allreceiverFunctions() []*Function {
 	retval := make([]*Function, len(s.receiverFunctions))
 	for _, v := range s.receiverFunctions {
 		retval = append(retval, v.f)
@@ -160,7 +160,7 @@ func (s *Struct) allReceiverFunctions() []*Function {
 	for _, v := range s.inheritedTypes {
 		switch w := v.node.(type) {
 		case *Struct:
-			retval = append(retval, w.allReceiverFunctions()...)
+			retval = append(retval, w.allreceiverFunctions()...)
 		case *Interface:
 			retval = append(retval, w.allRequiredFunctions()...)
 		}
@@ -172,7 +172,7 @@ func (s *Struct) allReceiverFunctions() []*Function {
 //no mutation
 func (s *Struct) implementsInterface(i *Interface) bool {
 	required := i.allRequiredFunctions()
-	have := s.allReceiverFunctions()
+	have := s.allreceiverFunctions()
 
 	for _, v := range required {
 		found := false
@@ -219,10 +219,10 @@ func (s *Struct) remakeStructInternals(spec *ast.TypeSpec) {
 	switch t := spec.Type.(type) {
 	case *ast.StructType:
 		//struct
-		flattenedFields := flattened(t.Fields)
-		for _, v := range flattenedFields.List {
+		FlattenedFields := Flattened(t.Fields)
+		for _, v := range FlattenedFields.List {
 			if len(v.Names) != 0 {
-				s.fields = append(s.fields, NamedTypeFromField(v))
+				s.fields = append(s.fields, newNamedTypeFromField(v))
 			} else {
 				lookup := typeMap.lookupOrAddFromExpr(v.Type)
 				if lookup.base.node != nil {
@@ -240,12 +240,12 @@ func (s *Struct) remakeStructInternals(spec *ast.TypeSpec) {
 
 //possibilities for lines:
 //Type -> inheritedStruct
-//(comma seperated list of names) Type -> NamedTypes
+//(comma seperated list of names) Type -> namedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
 func newStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 	//should only be used with declarations, if struct is in field names use newStructUnknown
-	retval := &Struct{b, nil, make([]NamedType, 0), make([]ReceiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
+	retval := &Struct{b, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
 
 	retval.remakeStructInternals(spec)
 

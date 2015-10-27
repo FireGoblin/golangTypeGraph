@@ -2,19 +2,19 @@ package main
 
 import "go/ast"
 
-type ReceiverFunction struct {
+type receiverFunction struct {
 	f             *Function
-	receiverField NamedType
+	receiverField namedType
 }
 
-func NewReceiverFunction(f *Function, field *ast.Field) ReceiverFunction {
-	return ReceiverFunction{f, NamedTypeFromField(field)}
+func newReceiverFunction(f *Function, field *ast.Field) receiverFunction {
+	return receiverFunction{f, newNamedTypeFromField(field)}
 }
 
-func (r *ReceiverFunction) SlimString() string {
+func (r *receiverFunction) SlimString() string {
 	return r.f.String()
 }
 
-func (r *ReceiverFunction) String() string {
+func (r *receiverFunction) String() string {
 	return "func (" + r.receiverField.String() + ") " + r.f.String()
 }

@@ -6,27 +6,27 @@ import "fmt"
 
 //data type for fields/parameters.
 //A pair of the name of the variable and its type.
-type NamedType struct {
+type namedType struct {
 	name   string
 	target *Type
 }
 
-func (n NamedType) String() string {
+func (n namedType) String() string {
 	return n.name + " " + n.target.String()
 }
 
-func (n NamedType) StringRelativePkg(pkg string) string {
+func (n namedType) StringRelativePkg(pkg string) string {
 	return n.name + " " + n.target.StringRelativePkg(pkg)
 }
 
-func (n NamedType) Node() gographviz.GraphableNode {
+func (n namedType) Node() gographviz.GraphableNode {
 	return n.target.base.node
 }
 
-func NamedTypeFromField(f *ast.Field) NamedType {
+func newNamedTypeFromField(f *ast.Field) namedType {
 	if len(f.Names) != 1 {
-		panic(fmt.Sprintf("tried to created NamedType with %d names", len(f.Names)))
+		panic(fmt.Sprintf("tried to created namedType with %d names", len(f.Names)))
 	}
 
-	return NamedType{f.Names[0].Name, typeMap.lookupOrAddFromExpr(f.Type)}
+	return namedType{f.Names[0].Name, typeMap.lookupOrAddFromExpr(f.Type)}
 }
