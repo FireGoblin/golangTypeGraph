@@ -22,7 +22,7 @@ type Function struct {
 }
 
 func (f *Function) String() string {
-	return f.name + " " + f.target.name
+	return StringInterfaceField(f.name, f.astNode)
 }
 
 func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {

@@ -29,30 +29,43 @@ type Interface struct {
 }
 
 func (i *Interface) String() string {
-	retval := "Interface: " + i.target.name + "\n"
-
-	retval += "Receiver Functions:\n"
-	for _, v := range i.requiredFunctions {
-		retval += v.String() + "\n"
-	}
-
-	return retval
+	return i.target.name
 }
 
 func (i *Interface) Name() string {
 	return gographviz.SafeName(i.target.name)
 }
 
+func (i *Interface) label() string {
+	retval := "\"{" + i.String() + "|"
+
+	for _, v := range i.inheritedInterfaces {
+		retval += v.String() + "\\n"
+	}
+
+	retval += "|"
+
+	for _, v := range i.requiredFunctions {
+		retval += v.String() + "\\l"
+	}
+
+	retval += "}\""
+
+	return retval
+}
+
 //TODO: fill out
 func (i *Interface) Attrs() gographviz.Attrs {
 	retval := make(map[string]string)
 	retval["shape"] = "Mrecord"
+	retval["label"] = i.label()
 	return retval
 }
 
 func implementedAttrs() map[string]string {
 	retval := make(map[string]string)
 	retval["label"] = "implements"
+	retval["style"] = "bold"
 	return retval
 }
 

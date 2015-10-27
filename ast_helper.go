@@ -97,11 +97,11 @@ func String(expr ast.Node) string {
 	case *ast.ChanType:
 		switch e.Dir {
 		case ast.SEND:
-			return "chan<-" + String(e.Value)
+			return "chan<- " + String(e.Value)
 		case ast.RECV:
-			return "<-chan" + String(e.Value)
+			return "<-chan " + String(e.Value)
 		default:
-			return "chan" + String(e.Value)
+			return "chan " + String(e.Value)
 		}
 	case *ast.FuncType:
 		return "func" + String(e.Params) + " " + String(e.Results)
@@ -145,7 +145,9 @@ func String(expr ast.Node) string {
 		}
 
 		x = strings.Trim(x, ", ")
-		x += " "
+		if x != "" {
+			x += " "
+		}
 		x += String(e.Type)
 		return x
 	case nil:

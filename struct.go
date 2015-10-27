@@ -39,27 +39,40 @@ func (s *Struct) AddFunction(f *Function, field *ast.Field) {
 }
 
 func (s *Struct) String() string {
-	retval := "Struct: " + s.target.name + "\n"
-	retval += "Fields:\n"
-	for _, v := range s.fields {
-		retval += v.String() + "\n"
-	}
-	retval += "Receiver Functions:\n"
-	for _, v := range s.receiverFunctions {
-		retval += v.String() + "\n"
-	}
-
-	return retval
+	return s.target.name
 }
 
 func (s *Struct) Name() string {
 	return gographviz.SafeName(s.target.name)
 }
 
+func (s *Struct) label() string {
+	retval := "\"{" + s.String() + "|"
+
+	for _, v := range s.inheritedTypes {
+		retval += v.String() + "\\l"
+	}
+
+	for _, v := range s.fields {
+		retval += v.String() + "\\l"
+	}
+
+	retval += "|"
+
+	for _, v := range s.receiverFunctions {
+		retval += v.SlimString() + "\\l"
+	}
+
+	retval += "}\""
+
+	return retval
+}
+
 //TODO: improve
 func (s *Struct) Attrs() gographviz.Attrs {
 	retval := make(map[string]string)
 	retval["shape"] = "record"
+	retval["label"] = s.label()
 	return retval
 }
 
@@ -70,24 +83,27 @@ func (s *Struct) parentEdge() *gographviz.Edge {
 
 	//TODO: better handling of derivative types
 	//TODO: better attrs
-	return &gographviz.Edge{s.parent.String(), "", s.Name(), "", true, parentAttrs()}
+	return &gographviz.Edge{s.parent.base.String(), "", s.Name(), "", true, parentAttrs()}
 }
 
 func inheritedAttrs() map[string]string {
 	retval := make(map[string]string)
 	retval["label"] = "inherited"
+	retval["style"] = "solid"
 	return retval
 }
 
 func parentAttrs() map[string]string {
 	retval := make(map[string]string)
 	retval["label"] = "parent"
+	retval["style"] = "solid"
 	return retval
 }
 
 func fieldAttrs() map[string]string {
 	retval := make(map[string]string)
 	retval["label"] = "field"
+	retval["style"] = "dashed"
 	return retval
 }
 
