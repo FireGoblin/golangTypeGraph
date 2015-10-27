@@ -86,10 +86,6 @@ func (i *Interface) Edges() []*gographviz.Edge {
 	return retval
 }
 
-func (i *Interface) isComposite() bool {
-	return len(i.inheritedInterfaces) > 0
-}
-
 //no mutation
 func (i *Interface) isImplementedBy(s *Struct) bool {
 	required := i.allRequiredFunctions()
@@ -150,19 +146,14 @@ func (i *Interface) allRequiredFunctions() []*Function {
 }
 
 //for if interface is found as an Anonymous member of something else first
-func makeInterfaceUnknown(source *Interface, b *BaseType) *Interface {
+func newInterfaceUnknown(source *Interface, b *BaseType) *Interface {
 	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), nil, nil, nil}
 	b.addNode(retval)
 
 	return retval
 }
 
-func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
-	interfaceType, ok := spec.Type.(*ast.InterfaceType)
-	if !ok {
-		panic("bad ast.TypeSpec that is not InterfaceType in makeInterface")
-	}
-
+func (i *Interface) remakeInterfaceInternals(interfaceType *ast.InterfaceType) {
 	for _, v := range interfaceType.Methods.List {
 		if len(v.Names) != 0 {
 			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
@@ -174,10 +165,19 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 			if node != nil {
 				i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*Interface))
 			} else {
-				i.inheritedInterfaces = append(i.inheritedInterfaces, makeInterfaceUnknown(i, lookup.base))
+				i.inheritedInterfaces = append(i.inheritedInterfaces, newInterfaceUnknown(i, lookup.base))
 			}
 		}
 	}
+}
+
+func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
+	interfaceType, ok := spec.Type.(*ast.InterfaceType)
+	if !ok {
+		panic("bad ast.TypeSpec that is not InterfaceType in newInterface")
+	}
+
+	i.remakeInterfaceInternals(interfaceType)
 
 	return i
 }
@@ -187,30 +187,16 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 //(comma seperated list of names) Type -> NamedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
+func newInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 	interfaceType, ok := spec.Type.(*ast.InterfaceType)
 	if !ok {
-		panic("bad ast.TypeSpec that is not InterfaceType in makeInterface")
+		panic("bad ast.TypeSpec that is not InterfaceType in newInterface")
 	}
 
-	//should only be used with declarations, if struct is in field names use makeStructUnknown
+	//should only be used with declarations, if struct is in field names use newStructUnknown
 	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), nil, nil, interfaceType}
 
-	for _, v := range interfaceType.Methods.List {
-		if len(v.Names) != 0 {
-			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
-			f.isReceiver = true
-			retval.requiredFunctions = append(retval.requiredFunctions, f)
-		} else {
-			lookup := typeMap.lookupOrAddFromExpr(v.Type)
-			node := lookup.base.node
-			if node != nil {
-				retval.inheritedInterfaces = append(retval.inheritedInterfaces, node.(*Interface))
-			} else {
-				retval.inheritedInterfaces = append(retval.inheritedInterfaces, makeInterfaceUnknown(retval, lookup.base))
-			}
-		}
-	}
+	retval.remakeInterfaceInternals(interfaceType)
 
 	b.addNode(retval)
 	return retval

@@ -33,7 +33,7 @@ type Struct struct {
 	astNode ast.Expr
 }
 
-func (s *Struct) AddFunction(f *Function, field *ast.Field) {
+func (s *Struct) addFunction(f *Function, field *ast.Field) {
 	s.receiverFunctions = append(s.receiverFunctions, NewReceiverFunction(f, field))
 	f.isReceiver = true
 }
@@ -46,33 +46,6 @@ func (s *Struct) Name() string {
 	return s.target.Name()
 }
 
-func (s *Struct) label() string {
-	retval := "\"{" + s.String() + "|"
-
-	if s.parent != nil {
-		retval += s.parent.StringRelativePkg(s.target.pkgName)
-	}
-
-	for _, v := range s.inheritedTypes {
-		retval += v.String() + "\\l"
-	}
-
-	for _, v := range s.fields {
-		retval += v.StringRelativePkg(s.target.pkgName) + "\\l"
-	}
-
-	retval += "|"
-
-	for _, v := range s.receiverFunctions {
-		retval += v.SlimString() + "\\l"
-	}
-
-	retval += "}\""
-
-	return retval
-}
-
-//TODO: improve
 func (s *Struct) Attrs() gographviz.Attrs {
 	retval := make(map[string]string)
 	retval["shape"] = "record"
@@ -80,38 +53,6 @@ func (s *Struct) Attrs() gographviz.Attrs {
 	return retval
 }
 
-func (s *Struct) parentEdge() *gographviz.Edge {
-	if s.parent == nil || s.parent.base.node == nil {
-		return nil
-	}
-
-	//TODO: better handling of derivative types
-	//TODO: better attrs
-	return &gographviz.Edge{s.parent.base.node.Name(), "", s.Name(), "", true, parentAttrs()}
-}
-
-func inheritedAttrs() map[string]string {
-	retval := make(map[string]string)
-	retval["label"] = "inherited"
-	retval["style"] = "solid"
-	return retval
-}
-
-func parentAttrs() map[string]string {
-	retval := make(map[string]string)
-	retval["label"] = "parent"
-	retval["style"] = "solid"
-	return retval
-}
-
-func fieldAttrs() map[string]string {
-	retval := make(map[string]string)
-	retval["label"] = "field"
-	retval["style"] = "dashed"
-	return retval
-}
-
-//TODO: add parent edge
 func (s *Struct) Edges() []*gographviz.Edge {
 	parentEdge := s.parentEdge()
 	var retval []*gographviz.Edge
@@ -149,6 +90,63 @@ func (s *Struct) Edges() []*gographviz.Edge {
 	if parentEdge != nil {
 		retval = append(retval, parentEdge)
 	}
+	return retval
+}
+
+func (s *Struct) label() string {
+	retval := "\"{" + s.String() + "|"
+
+	if s.parent != nil {
+		retval += s.parent.StringRelativePkg(s.target.pkgName)
+	}
+
+	for _, v := range s.inheritedTypes {
+		retval += v.String() + "\\l"
+	}
+
+	for _, v := range s.fields {
+		retval += v.StringRelativePkg(s.target.pkgName) + "\\l"
+	}
+
+	retval += "|"
+
+	for _, v := range s.receiverFunctions {
+		retval += v.SlimString() + "\\l"
+	}
+
+	retval += "}\""
+
+	return retval
+}
+
+func (s *Struct) parentEdge() *gographviz.Edge {
+	if s.parent == nil || s.parent.base.node == nil {
+		return nil
+	}
+
+	//TODO: better handling of derivative types
+	//TODO: better attrs
+	return &gographviz.Edge{s.parent.base.node.Name(), "", s.Name(), "", true, parentAttrs()}
+}
+
+func inheritedAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "inherited"
+	retval["style"] = "solid"
+	return retval
+}
+
+func parentAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "parent"
+	retval["style"] = "solid"
+	return retval
+}
+
+func fieldAttrs() map[string]string {
+	retval := make(map[string]string)
+	retval["label"] = "field"
+	retval["style"] = "dashed"
 	return retval
 }
 
@@ -217,38 +215,27 @@ func (s *Struct) interfacesImplemented(i []*Interface) []*Interface {
 	return retval
 }
 
-func (s *Struct) isComposite() bool {
-	return len(s.inheritedTypes) > 0
-}
-
-func (s *Struct) isRedefinedType() bool {
-	return s.parent != nil
-}
-
-func (s *Struct) getFields() []NamedType {
-	if s.parent == nil {
-		return s.fields
+func (s *Struct) remakeStructInternals(spec *ast.TypeSpec) {
+	switch t := spec.Type.(type) {
+	case *ast.StructType:
+		//struct
+		flattenedFields := flattened(t.Fields)
+		for _, v := range flattenedFields.List {
+			if len(v.Names) != 0 {
+				s.fields = append(s.fields, NamedTypeFromField(v))
+			} else {
+				lookup := typeMap.lookupOrAddFromExpr(v.Type)
+				if lookup.base.node != nil {
+					s.inheritedTypes = append(s.inheritedTypes, lookup.base)
+				} else {
+					s.inheritedTypes = append(s.inheritedTypes, newUnknown(s, lookup.base).target)
+				}
+			}
+		}
+	default:
+		//redefined type
+		s.parent = typeMap.lookupOrAddFromExpr(t)
 	}
-
-	n := s.parent.base.node
-	if n == nil {
-		return nil
-	}
-
-	struc, ok := n.(*Struct)
-	if ok {
-		return struc.fields
-	}
-
-	return nil
-}
-
-//for if struct is found as an Anonymous member of something else first
-func makeUnknown(source *Struct, b *BaseType) *Unknown {
-	retval := &Unknown{b}
-	b.addNode(retval)
-
-	return retval
 }
 
 //possibilities for lines:
@@ -256,30 +243,11 @@ func makeUnknown(source *Struct, b *BaseType) *Unknown {
 //(comma seperated list of names) Type -> NamedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
-	//should only be used with declarations, if struct is in field names use makeStructUnknown
+func newStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
+	//should only be used with declarations, if struct is in field names use newStructUnknown
 	retval := &Struct{b, nil, make([]NamedType, 0), make([]ReceiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
 
-	switch t := spec.Type.(type) {
-	case *ast.StructType:
-		//struct
-		flattenedFields := flattened(t.Fields)
-		for _, v := range flattenedFields.List {
-			if len(v.Names) != 0 {
-				retval.fields = append(retval.fields, NamedTypeFromField(v))
-			} else {
-				lookup := typeMap.lookupOrAddFromExpr(v.Type)
-				if lookup.base.node != nil {
-					retval.inheritedTypes = append(retval.inheritedTypes, lookup.base)
-				} else {
-					retval.inheritedTypes = append(retval.inheritedTypes, makeUnknown(retval, lookup.base).target)
-				}
-			}
-		}
-	default:
-		//redefined type
-		retval.parent = typeMap.lookupOrAddFromExpr(t)
-	}
+	retval.remakeStructInternals(spec)
 
 	b.addNode(retval)
 	return retval

@@ -33,7 +33,7 @@ func (m MasterTypeMap) lookupOrAdd(s string) *Type {
 	x, ok := m.currentMap()[s]
 
 	if !ok {
-		m.currentMap()[s] = makeType(s, m.currentPkg)
+		m.currentMap()[s] = newType(s, m.currentPkg)
 
 		x, ok = m.currentMap()[s]
 		if !ok {
@@ -48,7 +48,7 @@ func (m MasterTypeMap) lookupOrAddWithPkg(s string, pkg string) *Type {
 	x, ok := m.getPkg(pkg)[s]
 
 	if !ok {
-		m.getPkg(pkg)[s] = makeType(s, pkg)
+		m.getPkg(pkg)[s] = newType(s, pkg)
 
 		x, ok = m.getPkg(pkg)[s]
 		if !ok {
@@ -75,7 +75,7 @@ func (m MasterTypeMap) lookupOrAddFromExpr(expr ast.Expr) *Type {
 	if ok && x.astNode == nil {
 		x.astNode = targetExpr
 	} else if !ok {
-		m.getPkg(targetPkg)[s] = makeTypeFromExpr(targetExpr, targetPkg)
+		m.getPkg(targetPkg)[s] = newTypeFromExpr(targetExpr, targetPkg)
 
 		//error checking
 		x, ok = m.getPkg(targetPkg)[s]

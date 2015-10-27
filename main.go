@@ -32,21 +32,21 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfac
 	switch decl.Type.(type) {
 	case *ast.InterfaceType:
 		if node == nil {
-			*interfaceList = append(*interfaceList, makeInterface(decl, typ.base))
+			*interfaceList = append(*interfaceList, newInterface(decl, typ.base))
 		} else {
 			switch n := node.(type) {
 			case *Interface:
 				*interfaceList = append(*interfaceList, n.remakeInterface(decl))
-			case *Unknown:
+			case *unknown:
 				*interfaceList = append(*interfaceList, n.remakeInterface(decl))
 			}
 		}
 	//case StructType or redefinied type
 	default:
 		if node == nil {
-			*structList = append(*structList, makeStruct(decl, typ.base))
+			*structList = append(*structList, newStruct(decl, typ.base))
 		} else {
-			*structList = append(*structList, node.(*Unknown).remakeStruct(decl))
+			*structList = append(*structList, node.(*unknown).remakeStruct(decl))
 		}
 	}
 }
@@ -147,7 +147,7 @@ func main() {
 						if d.Recv != nil {
 							recv := typeMap.lookupOrAddFromExpr(d.Recv.List[0].Type).base.node
 							if recv != nil {
-								recv.(*Struct).AddFunction(f, d.Recv.List[0])
+								recv.(*Struct).addFunction(f, d.Recv.List[0])
 							}
 						}
 					}
