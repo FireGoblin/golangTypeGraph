@@ -24,13 +24,24 @@ func (b *BaseType) addNode(n gographviz.GraphableNode) {
 	b.node = n
 }
 
+//Name is safe for use in graph
+func (b BaseType) Name() string {
+	retval := b.pkgName
+	if retval == *defaultPackageName {
+		retval = ""
+	} else if retval != "" {
+		retval += "_SEL_"
+	}
+	retval += gographviz.SafeName(b.name)
+	return retval
+}
+
 func (b BaseType) String() string {
 	retval := b.pkgName
 	if retval == *defaultPackageName {
 		retval = ""
-	}
-	if retval != "" {
-		retval += " "
+	} else if retval != "" {
+		retval += "."
 	}
 	retval += b.name
 	return retval

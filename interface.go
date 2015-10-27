@@ -29,11 +29,11 @@ type Interface struct {
 }
 
 func (i *Interface) String() string {
-	return i.target.name
+	return i.target.String()
 }
 
 func (i *Interface) Name() string {
-	return gographviz.SafeName(i.target.name)
+	return i.target.Name()
 }
 
 func (i *Interface) label() string {

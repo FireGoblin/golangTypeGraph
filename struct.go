@@ -39,11 +39,11 @@ func (s *Struct) AddFunction(f *Function, field *ast.Field) {
 }
 
 func (s *Struct) String() string {
-	return s.target.name
+	return s.target.String()
 }
 
 func (s *Struct) Name() string {
-	return gographviz.SafeName(s.target.name)
+	return s.target.Name()
 }
 
 func (s *Struct) label() string {
@@ -83,7 +83,7 @@ func (s *Struct) parentEdge() *gographviz.Edge {
 
 	//TODO: better handling of derivative types
 	//TODO: better attrs
-	return &gographviz.Edge{s.parent.base.String(), "", s.Name(), "", true, parentAttrs()}
+	return &gographviz.Edge{s.Name(), "", s.Name(), "", true, parentAttrs()}
 }
 
 func inheritedAttrs() map[string]string {

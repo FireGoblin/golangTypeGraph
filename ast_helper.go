@@ -106,18 +106,22 @@ func String(expr ast.Node) string {
 	case *ast.FuncType:
 		return "func" + String(e.Params) + " " + String(e.Results)
 	case *ast.InterfaceType:
-		x := ""
+		x := "interface\\{"
 		for _, v := range e.Methods.List {
-			x += String(v) + "\n"
+			x += String(v) + ", "
 		}
+		x = strings.Trim(x, ", ")
+		x += "\\}"
 		return x
 	case *ast.MapType:
 		return "map[" + String(e.Key) + "]" + String(e.Value)
 	case *ast.StructType:
-		x := ""
+		x := "struct\\{"
 		for _, v := range e.Fields.List {
-			x += String(v) + "\n"
+			x += String(v) + ", "
 		}
+		x = strings.Trim(x, ", ")
+		x += "\\}"
 		return x
 	case *ast.FieldList:
 		if e == nil {
