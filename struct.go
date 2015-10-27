@@ -49,6 +49,10 @@ func (s *Struct) Name() string {
 func (s *Struct) label() string {
 	retval := "\"{" + s.String() + "|"
 
+	if s.parent != nil {
+		retval += s.parent.StringRelativePkg(s.target.pkgName)
+	}
+
 	for _, v := range s.inheritedTypes {
 		retval += v.String() + "\\l"
 	}
@@ -83,7 +87,7 @@ func (s *Struct) parentEdge() *gographviz.Edge {
 
 	//TODO: better handling of derivative types
 	//TODO: better attrs
-	return &gographviz.Edge{s.Name(), "", s.Name(), "", true, parentAttrs()}
+	return &gographviz.Edge{s.parent.base.node.Name(), "", s.Name(), "", true, parentAttrs()}
 }
 
 func inheritedAttrs() map[string]string {

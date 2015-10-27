@@ -59,6 +59,8 @@ func BaseTypeOf(expr ast.Expr) ast.Expr {
 	case *ast.MapType:
 		//TODO: Better system for breaking up map types
 		return BaseTypeOf(e.Value)
+	case *ast.ArrayType:
+		return BaseTypeOf(e.Elt)
 	}
 
 	return expr
@@ -73,6 +75,8 @@ func RecursiveTypeOf(expr ast.Expr) ast.Expr {
 	case *ast.MapType:
 		//TODO: Better system for breaking up map types
 		return e.Value
+	case *ast.ArrayType:
+		return e.Elt
 	}
 
 	return nil
@@ -88,6 +92,9 @@ func ReplaceSelector(expr ast.Expr) (replaced ast.Expr, X *ast.Ident) {
 		return e, X
 	case *ast.MapType:
 		e.Value, X = ReplaceSelector(e.Value)
+		return e, X
+	case *ast.ArrayType:
+		e.Elt, X = ReplaceSelector(e.Elt)
 		return e, X
 	case *ast.SelectorExpr:
 		return e.Sel, e.X.(*ast.Ident)
@@ -108,6 +115,8 @@ func InsertPkg(pkg string, expr ast.Expr) ast.Expr {
 		return &ast.ChanType{e.Begin, e.Arrow, e.Dir, InsertPkg(pkg, e.Value)}
 	case *ast.MapType:
 		return &ast.MapType{e.Map, e.Key, InsertPkg(pkg, e.Value)}
+	case *ast.ArrayType:
+		return &ast.ArrayType{e.Lbrack, e.Len, InsertPkg(pkg, e.Elt)}
 	}
 
 	return &ast.SelectorExpr{&ast.Ident{token.NoPos, pkg, nil}, expr.(*ast.Ident)}
