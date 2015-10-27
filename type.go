@@ -10,17 +10,17 @@ type Type struct {
 
 //TODO: maybe more effecient way to do this
 //only call from master_type_map
-func makeType(s string) *Type {
-	return sharedMakeType(s, nil)
+func makeType(s string, pkg string) *Type {
+	return sharedMakeType(s, nil, pkg)
 }
 
 //TODO: maybe more effecient way to do this
 //only call from master_type_map
-func makeTypeFromExpr(expr ast.Expr) *Type {
-	return sharedMakeType(String(expr), expr)
+func makeTypeFromExpr(expr ast.Expr, pkg string) *Type {
+	return sharedMakeType(String(expr), expr, pkg)
 }
 
-func sharedMakeType(s string, expr ast.Expr) *Type {
+func sharedMakeType(s string, expr ast.Expr, pkg string) *Type {
 	var baseType string
 	if expr != nil {
 		baseType = String(BaseTypeOf(expr))
@@ -31,21 +31,21 @@ func sharedMakeType(s string, expr ast.Expr) *Type {
 	retval := Type{s, nil, expr}
 
 	if RecursiveTypeOf(expr) == nil {
-		b := makeBase(baseType)
+		b := makeBase(baseType, pkg)
 		retval.base = b
 	} else {
-		b, ok := typeMap[baseType]
+		b, ok := typeMap.getPkg(pkg)[baseType]
 		if !ok {
-			b = typeMap.lookupOrAdd(baseType)
+			b = typeMap.lookupOrAddWithPkg(baseType, pkg)
 		}
 
 		retval.base = b.base
 
 		next := RecursiveTypeOf(expr)
 		//create lower type if not created yet
-		_, ok = typeMap[String(next)]
+		_, ok = typeMap.getPkg(pkg)[String(next)]
 		if !ok {
-			makeTypeRecursive(String(next), retval.base, next)
+			makeTypeRecursive(String(next), retval.base, next, pkg)
 		}
 	}
 
@@ -53,15 +53,15 @@ func sharedMakeType(s string, expr ast.Expr) *Type {
 }
 
 //never call outside of makeType
-func makeTypeRecursive(s string, b *BaseType, expr ast.Expr) {
+func makeTypeRecursive(s string, b *BaseType, expr ast.Expr, pkg string) {
 	x := Type{s, b, expr}
-	typeMap[s] = &x
+	typeMap.theMap[pkg][s] = &x
 
 	next := RecursiveTypeOf(expr)
 	if next != nil {
-		_, ok := typeMap[String(next)]
+		_, ok := typeMap.theMap[pkg][String(next)]
 		if !ok {
-			makeTypeRecursive(String(next), b, next)
+			makeTypeRecursive(String(next), b, next, pkg)
 		}
 	}
 }

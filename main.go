@@ -17,6 +17,7 @@ import (
 
 var filename = flag.String("file", "github.com/firegoblin/golangTypeGraph", "file to parse on, relative to $GOPATH/src")
 var includeTestFiles = flag.Bool("test", true, "whether or not to include test files in the graph")
+var defaultPackageName = flag.String("pkg", "main", "the package that will not have its types prefiexed with package name")
 
 func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfaceList *[]*Interface) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)
@@ -78,6 +79,8 @@ func main() {
 
 	//TODO: fix for multiple packages
 	for _, pkg := range pkgs {
+		typeMap.currentPkg = pkg.Name
+		funcMap.currentPkg = pkg.Name
 		for _, file := range pkg.Files {
 			//add all types to master list before processing delcarations
 			//minimizes creation of unknown types
@@ -110,6 +113,8 @@ func main() {
 			}
 		}
 	}
+
+	fmt.Println(len(typeMap.theMap))
 
 	for _, i := range interfaceList {
 		i.setImplementedBy(structList)
