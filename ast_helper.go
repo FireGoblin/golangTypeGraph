@@ -38,16 +38,13 @@ func removeNames(f *ast.FieldList) *ast.FieldList {
 	}
 
 	x := &ast.FieldList{f.Opening, make([]*ast.Field, len(f.List)), f.Closing}
+
 	copy(x.List, f.List)
 	for i := range x.List {
 		x.List[i].Names = nil
 	}
 
 	return x
-}
-
-func FuncField(f *ast.FuncDecl) *ast.Field {
-	return &ast.Field{nil, []*ast.Ident{f.Name}, f.Type, nil, nil}
 }
 
 func BaseTypeOf(expr ast.Expr) ast.Expr {
@@ -85,17 +82,21 @@ func RecursiveTypeOf(expr ast.Expr) ast.Expr {
 func ReplaceSelector(expr ast.Expr) (replaced ast.Expr, X *ast.Ident) {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
-		a, X := ReplaceSelector(e.X)
-		return &ast.StarExpr{e.Star, a}, X
+		local := *e
+		local.X, X = ReplaceSelector(e.X)
+		return &local, X
 	case *ast.ChanType:
-		a, X := ReplaceSelector(e.Value)
-		return &ast.ChanType{e.Begin, e.Arrow, e.Dir, a}, X
+		local := *e
+		local.Value, X = ReplaceSelector(e.Value)
+		return &local, X
 	case *ast.MapType:
-		a, X := ReplaceSelector(e.Value)
-		return &ast.MapType{e.Map, e.Key, a}, X
+		local := *e
+		local.Value, X = ReplaceSelector(e.Value)
+		return &local, X
 	case *ast.ArrayType:
-		a, X := ReplaceSelector(e.Elt)
-		return &ast.ArrayType{e.Lbrack, e.Len, a}, X
+		local := *e
+		local.Elt, X = ReplaceSelector(e.Elt)
+		return &local, X
 	case *ast.SelectorExpr:
 		return e.Sel, e.X.(*ast.Ident)
 	}
@@ -110,16 +111,27 @@ func StringWithPkg(pkg string, expr ast.Expr) string {
 func InsertPkg(pkg string, expr ast.Expr) ast.Expr {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
-		return &ast.StarExpr{e.Star, InsertPkg(pkg, e.X)}
+		local := *e
+		local.X = InsertPkg(pkg, e.X)
+		return &local
 	case *ast.ChanType:
-		return &ast.ChanType{e.Begin, e.Arrow, e.Dir, InsertPkg(pkg, e.Value)}
+		local := *e
+		local.Value = InsertPkg(pkg, e.Value)
+		return &local
 	case *ast.MapType:
-		return &ast.MapType{e.Map, e.Key, InsertPkg(pkg, e.Value)}
+		local := *e
+		local.Value = InsertPkg(pkg, e.Value)
+		return &local
 	case *ast.ArrayType:
-		return &ast.ArrayType{e.Lbrack, e.Len, InsertPkg(pkg, e.Elt)}
+		local := *e
+		local.Elt = InsertPkg(pkg, e.Elt)
+		return &local
+	case *ast.Ident:
+		return &ast.SelectorExpr{ast.NewIdent(pkg), e}
 	}
 
-	return &ast.SelectorExpr{&ast.Ident{token.NoPos, pkg, nil}, expr.(*ast.Ident)}
+	//returning nil is an error
+	return nil
 }
 
 func String(expr ast.Node) string {

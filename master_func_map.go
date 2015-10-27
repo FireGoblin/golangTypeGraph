@@ -28,7 +28,7 @@ func (m MasterFuncMap) getPkg(pkg string) map[string]*Function {
 }
 
 func (m MasterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Function {
-	var namelessExpr = &ast.FuncType{0, nil, nil}
+	namelessExpr := &ast.FuncType{0, nil, nil}
 
 	namelessExpr.Params = normalized(expr.Params)
 	namelessExpr.Results = normalized(expr.Results)
