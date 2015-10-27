@@ -62,14 +62,14 @@ func main() {
 
 	gopath := os.Getenv("GOPATH") + "/src/"
 
-	structList := make([]*Struct, 0)
-	interfaceList := make([]*Interface, 0)
-	funcList := make([]*Function, 0)
+	var structList []*Struct
+	var interfaceList []*Interface
+	var funcList []*Function
 
-	directories := make([]string, 0)
+	var directories []string
 	directories = append(directories, *filename)
 
-	searchedDirectories := make([]string, 0)
+	var searchedDirectories []string
 
 	for len(directories) > 0 {
 		if *includeTestFiles {
