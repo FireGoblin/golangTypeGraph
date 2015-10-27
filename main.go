@@ -18,6 +18,7 @@ import (
 var filename = flag.String("file", "github.com/firegoblin/golangTypeGraph", "file to parse on, relative to $GOPATH/src")
 var includeTestFiles = flag.Bool("test", true, "whether or not to include test files in the graph")
 var defaultPackageName = flag.String("pkg", "main", "the package that will not have its types prefiexed with package name")
+var onlyExports = flag.Bool("exports", false, "marks whether only exported nodes are shown")
 
 func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfaceList *[]*Interface) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)
@@ -60,6 +61,10 @@ func main() {
 
 	gopath := os.Getenv("GOPATH") + "/src/"
 
+	structList := make([]*Struct, 0)
+	interfaceList := make([]*Interface, 0)
+	funcList := make([]*Function, 0)
+
 	if *includeTestFiles {
 		pkgs, err = parser.ParseDir(fset, gopath+*filename, nil, 0)
 	} else {
@@ -71,14 +76,16 @@ func main() {
 		panic(err)
 	}
 
-	structList := make([]*Struct, 0)
-	interfaceList := make([]*Interface, 0)
-	funcList := make([]*Function, 0)
-
 	//ast.Print(fset, pkgs)
 
 	//TODO: fix for multiple packages
 	for _, pkg := range pkgs {
+		if *onlyExports {
+			hasExports := ast.PackageExports(pkg)
+			if !hasExports {
+				continue
+			}
+		}
 		typeMap.currentPkg = pkg.Name
 		funcMap.currentPkg = pkg.Name
 		for _, file := range pkg.Files {
@@ -113,8 +120,6 @@ func main() {
 			}
 		}
 	}
-
-	fmt.Println(len(typeMap.theMap))
 
 	for _, i := range interfaceList {
 		i.setImplementedBy(structList)
