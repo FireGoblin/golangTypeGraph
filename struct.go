@@ -18,7 +18,7 @@ type Struct struct {
 	fields []NamedType
 
 	//receiver functions on this type
-	receiverFunctions []*Function
+	receiverFunctions []ReceiverFunction
 
 	//structs or interfaces included anonymously in this struct
 	inheritedTypes []*BaseType
@@ -33,8 +33,9 @@ type Struct struct {
 	astNode ast.Expr
 }
 
-func (s *Struct) AddFunction(f *Function) {
-	s.receiverFunctions = append(s.receiverFunctions, f)
+func (s *Struct) AddFunction(f *Function, field *ast.Field) {
+	s.receiverFunctions = append(s.receiverFunctions, NewReceiverFunction(f, field))
+	f.isReceiver = true
 }
 
 func (s *Struct) String() string {
@@ -132,9 +133,8 @@ func (s *Struct) Edges() []*gographviz.Edge {
 //no mutation
 func (s *Struct) allReceiverFunctions() []*Function {
 	retval := make([]*Function, len(s.receiverFunctions))
-	c := copy(retval, s.receiverFunctions)
-	if c != len(s.receiverFunctions) {
-		panic("copy failed in allRequiredFunctions")
+	for _, v := range s.receiverFunctions {
+		retval = append(retval, v.f)
 	}
 
 	for _, v := range s.inheritedTypes {
@@ -236,7 +236,7 @@ func makeUnknown(source *Struct, b *BaseType) *Unknown {
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
 func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 	//should only be used with declarations, if struct is in field names use makeStructUnknown
-	retval := &Struct{b, nil, make([]NamedType, 0), make([]*Function, 0), make([]*BaseType, 0), nil, nil, spec.Type}
+	retval := &Struct{b, nil, make([]NamedType, 0), make([]ReceiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
 
 	switch t := spec.Type.(type) {
 	case *ast.StructType:
@@ -244,7 +244,7 @@ func makeStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
 		flattenedFields := flattened(t.Fields)
 		for _, v := range flattenedFields.List {
 			if len(v.Names) != 0 {
-				retval.fields = append(retval.fields, NamedType{v.Names[0].Name, typeMap.lookupOrAddFromExpr(v.Type)})
+				retval.fields = append(retval.fields, NamedTypeFromField(v))
 			} else {
 				lookup := typeMap.lookupOrAddFromExpr(v.Type)
 				if lookup.base.node != nil {

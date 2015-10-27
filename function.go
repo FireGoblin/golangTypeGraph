@@ -16,12 +16,7 @@ type Function struct {
 	//The types of the return value from this function
 	returnTypes []*Type
 
-	//if interface or struct is non-empty, then this is used as a receiver function
-	//all structs that implement this function
-	receivers []*Struct
-
-	//any interfaces that require this function
-	interfaces []*Interface
+	isReceiver bool
 
 	astNode *ast.FuncType
 }
@@ -49,20 +44,11 @@ func makeFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
 	}
 
 	//TODO eventually: re-add paramTypes and returnTypes
-	retval := &Function{s, typ, paramsProcessed, resultsProcessed, make([]*Struct, 0), make([]*Interface, 0), f}
+	retval := &Function{s, typ, paramsProcessed, resultsProcessed, false, f}
 
 	return retval
 }
 
-func (f *Function) addInterface(i *Interface) {
-	f.interfaces = append(f.interfaces, i)
-}
-
-func (f *Function) addReceiver(s *Struct) {
-	f.receivers = append(f.receivers, s)
-	s.AddFunction(f)
-}
-
 func (f Function) isReceiverFunction() bool {
-	return len(f.receivers)+len(f.interfaces) > 0
+	return f.isReceiver
 }

@@ -151,7 +151,7 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 	for _, v := range interfaceType.Methods.List {
 		if len(v.Names) != 0 {
 			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
-			f.addInterface(i)
+			f.isReceiver = true
 			i.requiredFunctions = append(i.requiredFunctions, f)
 		} else {
 			lookup := typeMap.lookupOrAddFromExpr(v.Type)
@@ -184,7 +184,7 @@ func makeInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
 	for _, v := range interfaceType.Methods.List {
 		if len(v.Names) != 0 {
 			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
-			f.addInterface(retval)
+			f.isReceiver = true
 			retval.requiredFunctions = append(retval.requiredFunctions, f)
 		} else {
 			lookup := typeMap.lookupOrAddFromExpr(v.Type)

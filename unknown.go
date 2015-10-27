@@ -24,7 +24,7 @@ func (u *Unknown) Edges() []*gographviz.Edge {
 }
 
 func (u *Unknown) remakeStruct(spec *ast.TypeSpec) *Struct {
-	retval := &Struct{u.target, nil, make([]NamedType, 0), make([]*Function, 0), make([]*BaseType, 0), nil, nil, spec.Type}
+	retval := &Struct{u.target, nil, make([]NamedType, 0), make([]ReceiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
 
 	switch t := spec.Type.(type) {
 	case *ast.StructType:
@@ -62,7 +62,7 @@ func (u *Unknown) remakeInterface(spec *ast.TypeSpec) *Interface {
 	for _, v := range interfaceType.Methods.List {
 		if len(v.Names) != 0 {
 			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
-			f.addInterface(retval)
+			f.isReceiver = true
 			retval.requiredFunctions = append(retval.requiredFunctions, f)
 		} else {
 			lookup := typeMap.lookupOrAddFromExpr(v.Type)

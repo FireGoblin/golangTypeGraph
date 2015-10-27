@@ -103,7 +103,7 @@ func main() {
 					if d.Recv != nil {
 						recv := typeMap.lookupOrAddFromExpr(d.Recv.List[0].Type).base.node
 						if recv != nil {
-							f.addReceiver(recv.(*Struct))
+							recv.(*Struct).AddFunction(f, d.Recv.List[0])
 						}
 					}
 				}
