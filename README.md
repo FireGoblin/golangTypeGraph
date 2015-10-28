@@ -35,6 +35,8 @@ Connections:
 
 Flags for golangTypeGraph:
 
+	-depth int
+		maximum depth of recursively searching imports (default 1)
 	-env string
 		environment variable to use instead of GOPATH (default "GOPATH")
 	-exports
@@ -45,13 +47,11 @@ Flags for golangTypeGraph:
   	-imax int
     	the maximum number of structs implementing an interface before edges 
     	are not drawn (default 9)
-  	-imports
-    	whether or not to parse import directories recrusively (default true)
   	-pkg string
     	the package that will not have its types prefiexed with package name 
     	(default "main")
   	-test
-    	whether or not to include test files in the graph (default true)
+    	whether or not to include test files in the graph
 
 
 assumptions for target dir:
@@ -61,11 +61,11 @@ assumptions for target dir:
 	Expects dir to be in $GOPATH/src (unless -goroot=true, then its in $GOROOT/src)
 	Assumes default golang style import folders
 	Does not use import .
+	No repeat definitions of a type in a package
 
 
 flag ideas:
 
-	Flag for particular level of recursion
 	Output file flag
 	Perform the dot command for conversion to graphics file types through the program
 	Modify verbosity of nodes

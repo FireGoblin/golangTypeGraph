@@ -12,12 +12,12 @@ import (
 )
 
 var filename = flag.String("file", "github.com/firegoblin/golangTypeGraph", "file to parse on, relative to $GOPATH/src")
-var includeTestFiles = flag.Bool("test", true, "whether or not to include test files in the graph")
+var includeTestFiles = flag.Bool("test", false, "whether or not to include test files in the graph")
 var defaultPackageName = flag.String("pkg", "main", "the package that will not have its types prefiexed with package name")
 var onlyExports = flag.Bool("exports", false, "marks whether only exported nodes are shown")
-var withImports = flag.Bool("imports", true, "whether or not to parse import directories recrusively")
 var implementMax = flag.Int("imax", 9, "the maximum number of structs implementing an interface before edges are not drawn")
 var envVar = flag.String("env", "GOPATH", "environment variable to use instead of GOPATH")
+var maxDepth = flag.Int("depth", 1, "maximum depth of recursively searching imports")
 
 func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*structNode, interfaceList *[]*interfaceNode) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)
@@ -44,7 +44,6 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*structNode, inte
 		if node == nil {
 			*structList = append(*structList, newStruct(decl, typ.base))
 		} else {
-			fmt.Println(node)
 			*structList = append(*structList, node.(*unknownNode).remakeStruct(decl))
 		}
 	}
@@ -66,9 +65,14 @@ func main() {
 	//var funcList []*function
 
 	var directories []string
+	var depth []int
 	directories = append(directories, *filename)
+	depth = append(depth, 0)
 
 	var searchedDirectories []string
+
+	//adding os as it does not work with what seems like duplicate types
+	searchedDirectories = append(searchedDirectories, "os")
 
 	for len(directories) > 0 {
 		if *includeTestFiles {
@@ -79,7 +83,10 @@ func main() {
 			}, 0)
 		}
 
+		dep := depth[len(depth)-1]
 		searchedDirectories = append(searchedDirectories, directories[len(directories)-1])
+
+		depth = depth[:len(depth)-1]
 		directories = directories[:len(directories)-1]
 
 		if err != nil {
@@ -97,7 +104,7 @@ func main() {
 			typeMap.currentPkg = pkg.Name
 			for _, file := range pkg.Files {
 				//add imports to directories to check
-				if *withImports {
+				if dep < *maxDepth {
 					for _, impor := range file.Imports {
 						importName := strings.Trim(impor.Path.Value, "\"")
 						found := false
@@ -114,6 +121,7 @@ func main() {
 							}
 						}
 						if !found {
+							depth = append(depth, dep+1)
 							directories = append(directories, importName)
 						}
 					}
