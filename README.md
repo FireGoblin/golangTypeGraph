@@ -1,4 +1,4 @@
-<h1>golangTypeGraph<h1>
+<h1>golangTypeGraph</h1>
 
 Description:
 
