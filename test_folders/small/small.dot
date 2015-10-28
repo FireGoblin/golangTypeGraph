@@ -1,0 +1,8 @@
+digraph small {
+	small_SEL_Implements->small_SEL_OneFunction[ label=implements, style=bold ];
+	small_SEL_Implements [ label="{small.Implements|id int\l|String() string\lID() int\l}", shape=record ];
+	small_SEL_NotImplementing [ label="{small.NotImplementing|id string\l|ID() string\l}", shape=record ];
+	small_SEL_OneFunction [ label="{small.OneFunction||ID() int\l}", shape=Mrecord ];
+
+}
+

@@ -1,7 +1,9 @@
 package main
 
-import "go/ast"
-import "github.com/firegoblin/gographviz"
+import (
+	"github.com/firegoblin/gographviz"
+	"go/ast"
+)
 
 //A node is responsible for the incoming edges to it
 

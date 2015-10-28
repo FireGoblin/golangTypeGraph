@@ -1,9 +1,9 @@
 package main
 
-import "go/ast"
-import "github.com/firegoblin/gographviz"
-
-//import . "regexp"
+import (
+	"github.com/firegoblin/gographviz"
+	"go/ast"
+)
 
 //A node type
 //implements gographviz.GraphableNode

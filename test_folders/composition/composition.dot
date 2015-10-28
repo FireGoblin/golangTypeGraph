@@ -1,20 +1,20 @@
 digraph composition {
-	Implements->Partial;
-	Partial->Everything;
-	Implements->OneFunction;
-	Partial->OneFunction;
-	Everything->OneFunction;
-	Everything->TwoFunctions;
-	OneFunction->ThreeFunctions;
-	TwoFunctions->ThreeFunctions;
-	Everything->ThreeFunctions;
-	Everything;
-	Implements;
-	NotImplementing;
-	OneFunction;
-	Partial;
-	ThreeFunctions;
-	TwoFunctions;
+	composition_SEL_Implements->composition_SEL_Partial[ label=inherited, style=solid ];
+	composition_SEL_Partial->composition_SEL_Everything[ label=inherited, style=solid ];
+	composition_SEL_Everything->composition_SEL_TwoFunctions[ label=implements, style=bold ];
+	composition_SEL_OneFunction->composition_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	composition_SEL_TwoFunctions->composition_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	composition_SEL_Everything->composition_SEL_ThreeFunctions[ label=implements, style=bold ];
+	composition_SEL_Implements->composition_SEL_OneFunction[ label=implements, style=bold ];
+	composition_SEL_Partial->composition_SEL_OneFunction[ label=implements, style=bold ];
+	composition_SEL_Everything->composition_SEL_OneFunction[ label=implements, style=bold ];
+	composition_SEL_Everything [ label="{composition.Everything|composition.Partial\l|AddInt(int) \l}", shape=record ];
+	composition_SEL_Implements [ label="{composition.Implements|id int\l|String() string\lID() int\l}", shape=record ];
+	composition_SEL_NotImplementing [ label="{composition.NotImplementing|id string\l|ID() string\l}", shape=record ];
+	composition_SEL_OneFunction [ label="{composition.OneFunction||ID() int\l}", shape=Mrecord ];
+	composition_SEL_Partial [ label="{composition.Partial|composition.Implements\lname string\l|CombinedName(string) string\lExtraFunction(int) \l}", shape=record ];
+	composition_SEL_ThreeFunctions [ label="{composition.ThreeFunctions|composition.OneFunction\ncomposition.TwoFunctions\n|}", shape=Mrecord ];
+	composition_SEL_TwoFunctions [ label="{composition.TwoFunctions||CombinedName(string) string\lAddInt(int) \l}", shape=Mrecord ];
 
 }
 

@@ -1,22 +1,13 @@
-digraph redefined {
-	Everything->LoseItAll;
-	Implements->Partial;
-	Partial->Everything;
-	LoseItAll->OneFunction;
-	Implements->OneFunction;
-	Partial->OneFunction;
-	Everything->OneFunction;
-	Everything->TwoFunctions;
-	OneFunction->ThreeFunctions;
-	TwoFunctions->ThreeFunctions;
-	Everything->ThreeFunctions;
-	Everything;
-	Implements;
-	LoseItAll;
-	NotImplementing;
-	OneFunction;
-	Partial;
-	ThreeFunctions;
-	TwoFunctions;
+digraph simple_redefined {
+	simple_SEL_Implements->simple_SEL_Redefined[ label=parent, style=solid ];
+	simple_SEL_Implements->simple_SEL_OneFunction[ label=implements, style=bold ];
+	simple_SEL_OneFunction->simple_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	simple_SEL_TwoFunctions->simple_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	simple_SEL_Implements [ label="{simple.Implements|id int\l|ID() int\l}", shape=record ];
+	simple_SEL_OneFunction [ label="{simple.OneFunction||ID() int\l}", shape=Mrecord ];
+	simple_SEL_Redefined [ label="{simple.Redefined|Implements|}", shape=record ];
+	simple_SEL_ThreeFunctions [ label="{simple.ThreeFunctions|simple.OneFunction\nsimple.TwoFunctions\n|}", shape=Mrecord ];
+	simple_SEL_TwoFunctions [ label="{simple.TwoFunctions||CombinedName(string) string\lAddInt(int) \l}", shape=Mrecord ];
 
 }
+

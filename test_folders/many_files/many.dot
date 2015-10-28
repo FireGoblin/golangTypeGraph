@@ -1,0 +1,14 @@
+digraph many_files {
+	many_SEL_Everything->many_SEL_TwoFunctions[ label=implements, style=bold ];
+	many_SEL_Everything->many_SEL_OneFunction[ label=implements, style=bold ];
+	many_SEL_Implements->many_SEL_OneFunction[ label=implements, style=bold ];
+	many_SEL_Partial->many_SEL_OneFunction[ label=implements, style=bold ];
+	many_SEL_Everything [ label="{many.Everything|id int\lname string\l|ID() int\lCombinedName(string) string\lAddInt(int) \l}", shape=record ];
+	many_SEL_Implements [ label="{many.Implements|id int\l|String() string\lID() int\l}", shape=record ];
+	many_SEL_NotImplementing [ label="{many.NotImplementing|id string\l|ID() string\l}", shape=record ];
+	many_SEL_OneFunction [ label="{many.OneFunction||ID() int\l}", shape=Mrecord ];
+	many_SEL_Partial [ label="{many.Partial|id int\lname string\l|ID() int\lCombinedName(string) string\lExtraFunction(int) \l}", shape=record ];
+	many_SEL_TwoFunctions [ label="{many.TwoFunctions||CombinedName(string) string\lAddInt(int) \l}", shape=Mrecord ];
+
+}
+

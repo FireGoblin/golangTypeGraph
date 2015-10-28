@@ -1,10 +1,12 @@
 package main
 
-import "go/ast"
-import "go/token"
-import "strings"
-import "reflect"
-import "fmt"
+import (
+	"fmt"
+	"go/ast"
+	"go/token"
+	"reflect"
+	"strings"
+)
 
 //ordering is important
 func Normalized(f *ast.FieldList) *ast.FieldList {

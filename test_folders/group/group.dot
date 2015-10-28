@@ -1,23 +1,23 @@
 digraph group {
-	Everything->LoseItAll;
-	Implements->Partial;
-	Partial->Everything;
-	Everything->TwoFunctions;
-	OneFunction->ThreeFunctions;
-	TwoFunctions->ThreeFunctions;
-	Everything->ThreeFunctions;
-	Implements->OneFunction;
-	LoseItAll->OneFunction;
-	Partial->OneFunction;
-	Everything->OneFunction;
-	Everything;
-	Implements;
-	LoseItAll;
-	NotImplementing;
-	OneFunction;
-	Partial;
-	ThreeFunctions;
-	TwoFunctions;
+	shuffled_SEL_Implements->shuffled_SEL_Partial[ label=inherited, style=solid ];
+	shuffled_SEL_Partial->shuffled_SEL_Everything[ label=inherited, style=solid ];
+	shuffled_SEL_Everything->shuffled_SEL_LoseItAll[ label=parent, style=solid ];
+	shuffled_SEL_OneFunction->shuffled_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	shuffled_SEL_TwoFunctions->shuffled_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	shuffled_SEL_Everything->shuffled_SEL_ThreeFunctions[ label=implements, style=bold ];
+	shuffled_SEL_Partial->shuffled_SEL_OneFunction[ label=implements, style=bold ];
+	shuffled_SEL_Everything->shuffled_SEL_OneFunction[ label=implements, style=bold ];
+	shuffled_SEL_Implements->shuffled_SEL_OneFunction[ label=implements, style=bold ];
+	shuffled_SEL_LoseItAll->shuffled_SEL_OneFunction[ label=implements, style=bold ];
+	shuffled_SEL_Everything->shuffled_SEL_TwoFunctions[ label=implements, style=bold ];
+	shuffled_SEL_Everything [ label="{shuffled.Everything|shuffled.Partial\l|AddInt(int) \l}", shape=record ];
+	shuffled_SEL_Implements [ label="{shuffled.Implements|id int\l|String() string\lID() int\l}", shape=record ];
+	shuffled_SEL_LoseItAll [ label="{shuffled.LoseItAll|Everything|ID() int\l}", shape=record ];
+	shuffled_SEL_NotImplementing [ label="{shuffled.NotImplementing|id string\l|ID() string\l}", shape=record ];
+	shuffled_SEL_OneFunction [ label="{shuffled.OneFunction||ID() int\l}", shape=Mrecord ];
+	shuffled_SEL_Partial [ label="{shuffled.Partial|shuffled.Implements\lname string\l|CombinedName(string) string\lExtraFunction(int) \l}", shape=record ];
+	shuffled_SEL_ThreeFunctions [ label="{shuffled.ThreeFunctions|shuffled.OneFunction\nshuffled.TwoFunctions\n|}", shape=Mrecord ];
+	shuffled_SEL_TwoFunctions [ label="{shuffled.TwoFunctions||CombinedName(string) string\lAddInt(int) \l}", shape=Mrecord ];
 
 }
 

@@ -1,15 +1,14 @@
-
 digraph extra_functions {
-	Implements->OneFunction;
-	Partial->OneFunction;
-	Everything->OneFunction;
-	Everything->TwoFunctions;
-	Everything;
-	Implements;
-	NotImplementing;
-	OneFunction;
-	Partial;
-	TwoFunctions;
+	extra_SEL_Implements->extra_SEL_OneFunction[ label=implements, style=bold ];
+	extra_SEL_Partial->extra_SEL_OneFunction[ label=implements, style=bold ];
+	extra_SEL_Everything->extra_SEL_OneFunction[ label=implements, style=bold ];
+	extra_SEL_Everything->extra_SEL_TwoFunctions[ label=implements, style=bold ];
+	extra_SEL_Everything [ label="{extra.Everything|id int\lname string\l|ID() int\lCombinedName(string) string\lAddInt(int) \l}", shape=record ];
+	extra_SEL_Implements [ label="{extra.Implements|id int\l|String() string\lID() int\l}", shape=record ];
+	extra_SEL_NotImplementing [ label="{extra.NotImplementing|id string\l|ID() string\l}", shape=record ];
+	extra_SEL_OneFunction [ label="{extra.OneFunction||ID() int\l}", shape=Mrecord ];
+	extra_SEL_Partial [ label="{extra.Partial|id int\lname string\l|ID() int\lCombinedName(string) string\lExtraFunction(int) \l}", shape=record ];
+	extra_SEL_TwoFunctions [ label="{extra.TwoFunctions||CombinedName(string) string\lAddInt(int) \l}", shape=Mrecord ];
 
 }
 

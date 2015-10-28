@@ -1,8 +1,10 @@
 package main
 
-import "github.com/firegoblin/gographviz"
-import "go/ast"
-import "fmt"
+import (
+	"fmt"
+	"github.com/firegoblin/gographviz"
+	"go/ast"
+)
 
 //data type for fields/parameters.
 //A pair of the name of the variable and its type.

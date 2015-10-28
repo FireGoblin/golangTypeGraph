@@ -1,20 +1,23 @@
 digraph redefined {
-	Implements->Partial;
-	Partial->Everything;
-	Everything->LoseItAll;
-	Everything->TwoFunctions;
-	Implements->OneFunction;
-	LoseItAll->OneFunction;
-	OneFunction->ThreeFunctions;
-	TwoFunctions->ThreeFunctions;
-	Everything;
-	Implements;
-	LoseItAll;
-	NotImplementing;
-	OneFunction;
-	Partial;
-	ThreeFunctions;
-	TwoFunctions;
+	redefined_SEL_Partial->redefined_SEL_Everything[ label=inherited, style=solid ];
+	redefined_SEL_Implements->redefined_SEL_Partial[ label=inherited, style=solid ];
+	redefined_SEL_Everything->redefined_SEL_LoseItAll[ label=parent, style=solid ];
+	redefined_SEL_Everything->redefined_SEL_TwoFunctions[ label=implements, style=bold ];
+	redefined_SEL_OneFunction->redefined_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	redefined_SEL_TwoFunctions->redefined_SEL_ThreeFunctions[ label=inherited, style=solid ];
+	redefined_SEL_Everything->redefined_SEL_ThreeFunctions[ label=implements, style=bold ];
+	redefined_SEL_Everything->redefined_SEL_OneFunction[ label=implements, style=bold ];
+	redefined_SEL_Implements->redefined_SEL_OneFunction[ label=implements, style=bold ];
+	redefined_SEL_Partial->redefined_SEL_OneFunction[ label=implements, style=bold ];
+	redefined_SEL_LoseItAll->redefined_SEL_OneFunction[ label=implements, style=bold ];
+	redefined_SEL_Everything [ label="{redefined.Everything|redefined.Partial\l|AddInt(int) \l}", shape=record ];
+	redefined_SEL_Implements [ label="{redefined.Implements|id int\l|String() string\lID() int\l}", shape=record ];
+	redefined_SEL_LoseItAll [ label="{redefined.LoseItAll|Everything|ID() int\l}", shape=record ];
+	redefined_SEL_NotImplementing [ label="{redefined.NotImplementing|id string\l|ID() string\l}", shape=record ];
+	redefined_SEL_OneFunction [ label="{redefined.OneFunction||ID() int\l}", shape=Mrecord ];
+	redefined_SEL_Partial [ label="{redefined.Partial|redefined.Implements\lname string\l|CombinedName(string) string\lExtraFunction(int) \l}", shape=record ];
+	redefined_SEL_ThreeFunctions [ label="{redefined.ThreeFunctions|redefined.OneFunction\nredefined.TwoFunctions\n|}", shape=Mrecord ];
+	redefined_SEL_TwoFunctions [ label="{redefined.TwoFunctions||CombinedName(string) string\lAddInt(int) \l}", shape=Mrecord ];
 
 }
 

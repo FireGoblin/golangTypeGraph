@@ -2,8 +2,6 @@ package main
 
 import "go/ast"
 
-//import "strings"
-
 type Type struct {
 	name    string
 	base    *BaseType

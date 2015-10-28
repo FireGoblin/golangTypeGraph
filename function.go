@@ -1,7 +1,9 @@
 package main
 
-import "go/ast"
-import "strings"
+import (
+	"go/ast"
+	"strings"
+)
 
 type Function struct {
 	//name for function
