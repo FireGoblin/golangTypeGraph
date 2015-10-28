@@ -1,25 +1,25 @@
 package simple
 
-type OneFunction interface {
-	ID() int
+type oneFunction interface {
+	id() int
 }
 
-type TwoFunctions interface {
-	CombinedName(string) string
-	AddInt(int)
+type twoFunctions interface {
+	combinedName(string) string
+	addInt(int)
 }
 
-type ThreeFunctions interface {
-	OneFunction
-	TwoFunctions
+type threeFunctions interface {
+	oneFunction
+	twoFunctions
 }
 
-type Implements struct {
+type implements struct {
 	id int
 }
 
-func (i *Implements) ID() int {
+func (i *implements) id() int {
 	return i.id
 }
 
-type Redefined Implements
+type Redefined implements

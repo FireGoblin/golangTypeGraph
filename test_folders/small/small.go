@@ -2,26 +2,26 @@ package small
 
 import "fmt"
 
-type OneFunction interface {
-	ID() int
+type oneFunction interface {
+	id() int
 }
 
-type Implements struct {
+type implements struct {
 	id int
 }
 
-func (i *Implements) String() string {
+func (i *implements) string() string {
 	return fmt.Sprintf("nonsense %d", i.id)
 }
 
-func (i *Implements) ID() int {
+func (i *implements) id() int {
 	return i.id
 }
 
-type NotImplementing struct {
+type notImplementing struct {
 	id string
 }
 
-func (i *NotImplementing) ID() string {
+func (i *notImplementing) id() string {
 	return i.id
 }

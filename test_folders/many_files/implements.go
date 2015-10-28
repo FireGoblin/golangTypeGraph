@@ -2,14 +2,14 @@ package many
 
 import "fmt"
 
-type Implements struct {
+type implements struct {
 	id int
 }
 
-func (i *Implements) String() string {
+func (i *implements) String() string {
 	return fmt.Sprintf("nonsense %d", i.id)
 }
 
-func (i *Implements) ID() int {
+func (i *implements) id() int {
 	return i.id
 }

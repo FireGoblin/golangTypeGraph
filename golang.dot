@@ -1,0 +1,31 @@
+digraph golangTypeGraph {
+	Function->masterFuncMap[ label=parent, style=solid ];
+	Type->masterTypeMap[ label=field, style=dashed ];
+	Type->namedType[ label=field, style=dashed ];
+	Function->receiverFunction[ label=field, style=dashed ];
+	namedType->receiverFunction[ label=field, style=dashed ];
+	BaseType->Struct[ label=field, style=dashed ];
+	Type->Struct[ label=field, style=dashed ];
+	namedType->Struct[ label=field, style=dashed ];
+	receiverFunction->Struct[ label=field, style=dashed ];
+	Interface->Struct[ label=field, style=dashed ];
+	BaseType->Interface[ label=field, style=dashed ];
+	Function->Interface[ label=field, style=dashed ];
+	Interface->Interface[ label=field, style=dashed ];
+	Struct->Interface[ label=field, style=dashed ];
+	BaseType->Type[ label=field, style=dashed ];
+	BaseType->unknown[ label=field, style=dashed ];
+	Type->Function[ label=field, style=dashed ];
+	BaseType [ label="{BaseType|name string\lnode gographviz.GraphableNode\lpkgName string\l|addNode(n gographviz.GraphableNode) \lName() string\lStringRelativePkg(pkg string) string\lString() string\l}", shape=record ];
+	Function [ label="{Function|name string\ltarget *Type\lparamTypes []*Type\lreturnTypes []*Type\lisReceiver bool\lastNode *ast.FuncType\l|String() string\llookupString() string\l}", shape=record ];
+	Interface [ label="{Interface|target *BaseType\lrequiredFunctions []*Function\linheritedInterfaces []*Interface\limplementedByCache []*Struct\lextraAttrs gographviz.Attrs\lastNode *ast.InterfaceType\l|String() string\lName() string\lAttrs() gographviz.Attrs\lEdges() []*gographviz.Edge\lhighlyImplemented() bool\llabel() string\limplementedAttrs() map[string]string\lisImplementedBy(s *Struct) bool\lsetImplementedBy(s []*Struct) []*Struct\limplementedBy(s []*Struct) []*Struct\lallRequiredFunctions() []*Function\lremakeInterfaceInternals(interfaceType *ast.InterfaceType) \lremakeInterface(spec *ast.TypeSpec) *Interface\l}", shape=record ];
+	Struct [ label="{Struct|target *BaseType\lparent *Type\lfields []namedType\lreceiverFunctions []receiverFunction\linheritedTypes []*BaseType\linterfaceCache []*Interface\lextraAttrs gographviz.Attrs\lastNode ast.Expr\l|addFunction(f *Function, field *ast.Field) \lString() string\lName() string\lAttrs() gographviz.Attrs\lEdges() []*gographviz.Edge\llabel() string\lparentEdge() *gographviz.Edge\lallreceiverFunctions() []*Function\limplementsInterface(i *Interface) bool\lsetInterfacesImplemented(i []*Interface) \linterfacesImplemented(i []*Interface) []*Interface\lremakeStructInternals(spec *ast.TypeSpec) \l}", shape=record ];
+	Type [ label="{Type|name string\lbase *BaseType\lastNode ast.Expr\l|String() string\lStringRelativePkg(pkg string) string\l}", shape=record ];
+	masterFuncMap [ label="{masterFuncMap|map[string]*Function|lookupOrAddFromExpr(name string, expr *ast.FuncType) *Function\l}", shape=record ];
+	masterTypeMap [ label="{masterTypeMap|theMap map[string]map[string]*Type\lcurrentPkg string\l|currentMap() map[string]*Type\lgetPkg(pkg string) map[string]*Type\llookupOrAdd(s string) *Type\llookupOrAddWithPkg(s string, pkg string) *Type\llookupOrAddFromExpr(expr ast.Expr) *Type\l}", shape=record ];
+	namedType [ label="{namedType|name string\ltarget *Type\l|String() string\lStringRelativePkg(pkg string) string\lNode() gographviz.GraphableNode\l}", shape=record ];
+	receiverFunction [ label="{receiverFunction|f *Function\lreceiverField namedType\l|SlimString() string\lString() string\l}", shape=record ];
+	unknown [ label="{unknown|target *BaseType\l|Name() string\lAttrs() gographviz.Attrs\lEdges() []*gographviz.Edge\lremakeStruct(spec *ast.TypeSpec) *Struct\lremakeInterface(spec *ast.TypeSpec) *Interface\l}", shape=record ];
+
+}
+

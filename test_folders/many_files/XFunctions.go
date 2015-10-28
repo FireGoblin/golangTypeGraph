@@ -1,14 +1,14 @@
 package many
 
-type OneFunction interface {
-	ID() int
+type oneFunction interface {
+	id() int
 }
 
-type TwoFunctions interface {
-	CombinedName(string) string
-	AddInt(int)
+type twoFunctions interface {
+	combinedName(string) string
+	addInt(int)
 }
 
-func AddXToY(x OneFunction, y TwoFunctions) {
-	y.AddInt(x.ID())
+func addXToY(x oneFunction, y twoFunctions) {
+	y.addInt(x.id())
 }

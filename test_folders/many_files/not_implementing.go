@@ -1,9 +1,9 @@
 package many
 
-type NotImplementing struct {
+type notImplementing struct {
 	id string
 }
 
-func (i *NotImplementing) ID() string {
+func (i *notImplementing) id() string {
 	return i.id
 }

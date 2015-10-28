@@ -40,7 +40,7 @@ var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error
 	"int", "int8", "int16", "int32", "int64",
 	"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
 
-func (b BaseType) StringRelativePkg(pkg string) string {
+func (b BaseType) stringRelativePkg(pkg string) string {
 	retval := b.pkgName
 	if retval == pkg {
 		retval = ""
@@ -66,5 +66,5 @@ func (b BaseType) StringRelativePkg(pkg string) string {
 }
 
 func (b BaseType) String() string {
-	return b.StringRelativePkg(*defaultPackageName)
+	return b.stringRelativePkg(*defaultPackageName)
 }

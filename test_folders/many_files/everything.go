@@ -1,18 +1,18 @@
 package many
 
-type Everything struct {
+type everything struct {
 	id   int
 	name string
 }
 
-func (p *Everything) ID() int {
+func (p *everything) id() int {
 	return p.id
 }
 
-func (p *Everything) CombinedName(s string) string {
+func (p *everything) combinedName(s string) string {
 	return s + p.name
 }
 
-func (p *Everything) AddInt(i int) {
+func (p *everything) addInt(i int) {
 	p.id = p.id + i
 }

@@ -67,10 +67,10 @@ func newTypeRecursive(s string, b *BaseType, expr ast.Expr, pkg string) {
 }
 
 func (t Type) String() string {
-	return t.StringRelativePkg(*defaultPackageName)
+	return t.stringRelativePkg(*defaultPackageName)
 }
 
-func (t Type) StringRelativePkg(pkg string) string {
+func (t Type) stringRelativePkg(pkg string) string {
 	if pkg == t.base.pkgName {
 		return t.name
 	}

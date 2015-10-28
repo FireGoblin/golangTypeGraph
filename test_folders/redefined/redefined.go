@@ -2,67 +2,67 @@ package redefined
 
 import "fmt"
 
-type OneFunction interface {
-	ID() int
+type oneFunction interface {
+	id() int
 }
 
-type TwoFunctions interface {
-	CombinedName(string) string
-	AddInt(int)
+type twoFunctions interface {
+	combinedName(string) string
+	addInt(int)
 }
 
-type ThreeFunctions interface {
-	OneFunction
-	TwoFunctions
+type threeFunctions interface {
+	oneFunction
+	twoFunctions
 }
 
-func AddXToY(x OneFunction, y TwoFunctions) {
-	y.AddInt(x.ID())
+func addXToY(x oneFunction, y twoFunctions) {
+	y.addInt(x.id())
 }
 
-type Implements struct {
+type implements struct {
 	id int
 }
 
-func (i *Implements) String() string {
+func (i *implements) String() string {
 	return fmt.Sprintf("nonsense %d", i.id)
 }
 
-func (i *Implements) ID() int {
+func (i *implements) id() int {
 	return i.id
 }
 
-type NotImplementing struct {
+type notImplementing struct {
 	id string
 }
 
-func (i *NotImplementing) ID() string {
+func (i *notImplementing) id() string {
 	return i.id
 }
 
-type Partial struct {
-	Implements
+type partial struct {
+	implements
 	name string
 }
 
-func (p *Partial) CombinedName(s string) string {
+func (p *partial) combinedName(s string) string {
 	return s + p.name
 }
 
-func (p *Partial) ExtraFunction(i int) {
+func (p *partial) extraFunction(i int) {
 	p.id = p.id + i
 }
 
-func (p *Everything) AddInt(i int) {
+func (p *everything) addInt(i int) {
 	p.id = p.id + i
 }
 
-type Everything struct {
-	Partial
+type everything struct {
+	partial
 }
 
-type LoseItAll Everything
+type loseItAll everything
 
-func (l *LoseItAll) ID() int {
+func (l *loseItAll) id() int {
 	return 0
 }

@@ -72,7 +72,7 @@ func (i *Interface) label() string {
 	}
 
 	for _, v := range i.inheritedInterfaces {
-		retval += v.target.StringRelativePkg(i.target.pkgName) + "\\n"
+		retval += v.target.stringRelativePkg(i.target.pkgName) + "\\n"
 	}
 
 	retval += "|"

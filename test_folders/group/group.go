@@ -2,62 +2,62 @@ package shuffled
 
 import "fmt"
 
-func AddXToY(x OneFunction, y TwoFunctions) {
-	y.AddInt(x.ID())
+func addXToY(x oneFunction, y twoFunctions) {
+	y.addInt(x.id())
 }
 
-func (i *Implements) String() string {
+func (i *implements) String() string {
 	return fmt.Sprintf("nonsense %d", i.id)
 }
 
-func (i *Implements) ID() int {
+func (i *implements) id() int {
 	return i.id
 }
 
-func (i *NotImplementing) ID() string {
+func (i *notImplementing) id() string {
 	return i.id
 }
 
-func (p *Partial) CombinedName(s string) string {
+func (p *partial) combinedName(s string) string {
 	return s + p.name
 }
 
-func (p *Partial) ExtraFunction(i int) {
+func (p *partial) extraFunction(i int) {
 	p.id = p.id + i
 }
 
-func (p *Everything) AddInt(i int) {
+func (p *everything) addInt(i int) {
 	p.id = p.id + i
 }
 
-func (l *LoseItAll) ID() int {
+func (l *loseItAll) id() int {
 	return 0
 }
 
 type (
-	Everything struct {
-		Partial
+	everything struct {
+		partial
 	}
-	NotImplementing struct {
+	notImplementing struct {
 		id string
 	}
-	ThreeFunctions interface {
-		OneFunction
-		TwoFunctions
+	threeFunctions interface {
+		oneFunction
+		twoFunctions
 	}
-	Implements struct {
+	implements struct {
 		id int
 	}
-	OneFunction interface {
-		ID() int
+	oneFunction interface {
+		id() int
 	}
-	LoseItAll    Everything
-	TwoFunctions interface {
-		CombinedName(string) string
-		AddInt(int)
+	loseItAll    everything
+	twoFunctions interface {
+		combinedName(string) string
+		addInt(int)
 	}
-	Partial struct {
-		Implements
+	partial struct {
+		implements
 		name string
 	}
 )

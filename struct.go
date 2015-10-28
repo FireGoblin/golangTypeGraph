@@ -99,15 +99,15 @@ func (s *Struct) label() string {
 	retval := "\"{" + s.String() + "|"
 
 	if s.parent != nil {
-		retval += s.parent.StringRelativePkg(s.target.pkgName)
+		retval += s.parent.stringRelativePkg(s.target.pkgName)
 	}
 
 	for _, v := range s.inheritedTypes {
-		retval += v.StringRelativePkg(s.target.pkgName) + "\\l"
+		retval += v.stringRelativePkg(s.target.pkgName) + "\\l"
 	}
 
 	for _, v := range s.fields {
-		retval += v.StringRelativePkg(s.target.pkgName) + "\\l"
+		retval += v.stringRelativePkg(s.target.pkgName) + "\\l"
 	}
 
 	retval += "|"
