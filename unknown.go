@@ -9,32 +9,32 @@ import (
 
 //A node type
 //implements gographviz.GraphableNode
-type unknown struct {
+type unknownNode struct {
 	target *baseType
 }
 
-func (u *unknown) Name() string {
+func (u *unknownNode) Name() string {
 	return gographviz.SafeName(u.target.name)
 }
 
-func (u *unknown) Attrs() gographviz.Attrs {
+func (u *unknownNode) Attrs() gographviz.Attrs {
 	return nil
 }
 
-func (u *unknown) Edges() []*gographviz.Edge {
+func (u *unknownNode) Edges() []*gographviz.Edge {
 	return nil
 }
 
 //for if struct is found as an Anonymous member of something else first
-func newUnknown(source *Struct, b *baseType) *unknown {
-	retval := &unknown{b}
+func newUnknown(source *structNode, b *baseType) *unknownNode {
+	retval := &unknownNode{b}
 	b.addNode(retval)
 
 	return retval
 }
 
-func (u *unknown) remakeStruct(spec *ast.TypeSpec) *Struct {
-	retval := &Struct{u.target, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*baseType, 0), nil, nil, spec.Type}
+func (u *unknownNode) remakeStruct(spec *ast.TypeSpec) *structNode {
+	retval := &structNode{u.target, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*baseType, 0), nil, nil, spec.Type}
 
 	retval.remakeStructInternals(spec)
 
@@ -42,13 +42,13 @@ func (u *unknown) remakeStruct(spec *ast.TypeSpec) *Struct {
 	return retval
 }
 
-func (u *unknown) remakeInterface(spec *ast.TypeSpec) *Interface {
+func (u *unknownNode) remakeInterface(spec *ast.TypeSpec) *interfaceNode {
 	interfaceType, ok := spec.Type.(*ast.InterfaceType)
 	if !ok {
 		panic("bad ast.TypeSpec that is not InterfaceType in newInterface")
 	}
 
-	retval := &Interface{u.target, make([]*function, 0), make([]*Interface, 0), nil, nil, interfaceType}
+	retval := &interfaceNode{u.target, make([]*function, 0), make([]*interfaceNode, 0), nil, nil, interfaceType}
 
 	retval.remakeInterfaceInternals(interfaceType)
 

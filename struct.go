@@ -9,7 +9,7 @@ import (
 
 //A node type
 //implements gographviz.GraphableNode
-type Struct struct {
+type structNode struct {
 	target *baseType
 
 	//if this is not nil, it is a redefined type
@@ -26,7 +26,7 @@ type Struct struct {
 	inheritedTypes []*baseType
 
 	//interfaces this node implements
-	interfaceCache []*Interface
+	interfaceCache []*interfaceNode
 
 	//any attrs need for drawing in the graph
 	extraAttrs gographviz.Attrs
@@ -35,27 +35,27 @@ type Struct struct {
 	astNode ast.Expr
 }
 
-func (s *Struct) addFunction(f *function, field *ast.Field) {
+func (s *structNode) addFunction(f *function, field *ast.Field) {
 	s.receiverFunctions = append(s.receiverFunctions, newReceiverFunction(f, field))
 	f.isReceiver = true
 }
 
-func (s *Struct) String() string {
+func (s *structNode) String() string {
 	return s.target.String()
 }
 
-func (s *Struct) Name() string {
+func (s *structNode) Name() string {
 	return s.target.Name()
 }
 
-func (s *Struct) Attrs() gographviz.Attrs {
+func (s *structNode) Attrs() gographviz.Attrs {
 	retval := make(map[string]string)
 	retval["shape"] = "record"
 	retval["label"] = s.label()
 	return retval
 }
 
-func (s *Struct) Edges() []*gographviz.Edge {
+func (s *structNode) Edges() []*gographviz.Edge {
 	parentEdge := s.parentEdge()
 	var retval []*gographviz.Edge
 
@@ -95,7 +95,7 @@ func (s *Struct) Edges() []*gographviz.Edge {
 	return retval
 }
 
-func (s *Struct) label() string {
+func (s *structNode) label() string {
 	retval := "\"{" + s.String() + "|"
 
 	if s.parent != nil {
@@ -121,7 +121,7 @@ func (s *Struct) label() string {
 	return retval
 }
 
-func (s *Struct) parentEdge() *gographviz.Edge {
+func (s *structNode) parentEdge() *gographviz.Edge {
 	if s.parent == nil || s.parent.base.node == nil {
 		return nil
 	}
@@ -153,7 +153,7 @@ func fieldAttrs() map[string]string {
 }
 
 //no mutation
-func (s *Struct) allreceiverFunctions() []*function {
+func (s *structNode) allreceiverFunctions() []*function {
 	retval := make([]*function, len(s.receiverFunctions))
 	for _, v := range s.receiverFunctions {
 		retval = append(retval, v.f)
@@ -161,9 +161,9 @@ func (s *Struct) allreceiverFunctions() []*function {
 
 	for _, v := range s.inheritedTypes {
 		switch w := v.node.(type) {
-		case *Struct:
+		case *structNode:
 			retval = append(retval, w.allreceiverFunctions()...)
-		case *Interface:
+		case *interfaceNode:
 			retval = append(retval, w.allRequiredFunctions()...)
 		}
 	}
@@ -172,7 +172,7 @@ func (s *Struct) allreceiverFunctions() []*function {
 }
 
 //no mutation
-func (s *Struct) implementsInterface(i *Interface) bool {
+func (s *structNode) implementsInterface(i *interfaceNode) bool {
 	required := i.allRequiredFunctions()
 	have := s.allreceiverFunctions()
 
@@ -193,20 +193,20 @@ func (s *Struct) implementsInterface(i *Interface) bool {
 	return true
 }
 
-func (s *Struct) setInterfacesImplemented(i []*Interface) {
+func (s *structNode) setInterfacesImplemented(i []*interfaceNode) {
 	retval := s.interfacesImplemented(i)
-	s.interfaceCache = make([]*Interface, len(retval))
+	s.interfaceCache = make([]*interfaceNode, len(retval))
 	copy(s.interfaceCache, retval)
 }
 
 //filter pattern
-func (s *Struct) interfacesImplemented(i []*Interface) []*Interface {
+func (s *structNode) interfacesImplemented(i []*interfaceNode) []*interfaceNode {
 	//cache call
 	if i == nil {
 		return s.interfaceCache
 	}
 
-	var retval []*Interface
+	var retval []*interfaceNode
 
 	for _, v := range i {
 		if s.implementsInterface(v) {
@@ -217,7 +217,7 @@ func (s *Struct) interfacesImplemented(i []*Interface) []*Interface {
 	return retval
 }
 
-func (s *Struct) remakeStructInternals(spec *ast.TypeSpec) {
+func (s *structNode) remakeStructInternals(spec *ast.TypeSpec) {
 	switch t := spec.Type.(type) {
 	case *ast.StructType:
 		//struct
@@ -245,9 +245,9 @@ func (s *Struct) remakeStructInternals(spec *ast.TypeSpec) {
 //(comma seperated list of names) Type -> namedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func newStruct(spec *ast.TypeSpec, b *baseType) *Struct {
+func newStruct(spec *ast.TypeSpec, b *baseType) *structNode {
 	//should only be used with declarations, if struct is in field names use newStructUnknown
-	retval := &Struct{b, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*baseType, 0), nil, nil, spec.Type}
+	retval := &structNode{b, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*baseType, 0), nil, nil, spec.Type}
 
 	retval.remakeStructInternals(spec)
 

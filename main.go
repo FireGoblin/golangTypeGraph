@@ -18,7 +18,7 @@ var onlyExports = flag.Bool("exports", false, "marks whether only exported nodes
 var withImports = flag.Bool("imports", true, "whether or not to parse import directories recrusively")
 var implementMax = flag.Int("imax", 9, "the maximum number of structs implementing an interface before edges are not drawn")
 
-func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfaceList *[]*Interface) {
+func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*structNode, interfaceList *[]*interfaceNode) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)
 	if !ok {
 		panic("unexpected type in processTypeDecl")
@@ -32,9 +32,9 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfac
 			*interfaceList = append(*interfaceList, newInterface(decl, typ.base))
 		} else {
 			switch n := node.(type) {
-			case *Interface:
+			case *interfaceNode:
 				*interfaceList = append(*interfaceList, n.remakeInterface(decl))
-			case *unknown:
+			case *unknownNode:
 				*interfaceList = append(*interfaceList, n.remakeInterface(decl))
 			}
 		}
@@ -43,7 +43,7 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*Struct, interfac
 		if node == nil {
 			*structList = append(*structList, newStruct(decl, typ.base))
 		} else {
-			*structList = append(*structList, node.(*unknown).remakeStruct(decl))
+			*structList = append(*structList, node.(*unknownNode).remakeStruct(decl))
 		}
 	}
 }
@@ -59,9 +59,9 @@ func main() {
 
 	gopath := os.Getenv("GOPATH") + "/src/"
 
-	var structList []*Struct
-	var interfaceList []*Interface
-	var funcList []*function
+	var structList []*structNode
+	var interfaceList []*interfaceNode
+	//var funcList []*function
 
 	var directories []string
 	directories = append(directories, *filename)
@@ -83,8 +83,6 @@ func main() {
 		if err != nil {
 			continue
 		}
-
-		//ast.Print(fset, pkgs)
 
 		//TODO: fix for multiple packages
 		for _, pkg := range pkgs {
@@ -139,11 +137,11 @@ func main() {
 					switch d := decl.(type) {
 					case *ast.FuncDecl:
 						f := funcMap.lookupOrAddFromExpr(d.Name.Name, d.Type)
-						funcList = append(funcList, f)
+						//funcList = append(funcList, f)
 						if d.Recv != nil {
 							recv := typeMap.lookupOrAddFromExpr(d.Recv.List[0].Type).base.node
 							if recv != nil {
-								recv.(*Struct).addFunction(f, d.Recv.List[0])
+								recv.(*structNode).addFunction(f, d.Recv.List[0])
 							}
 						}
 					}

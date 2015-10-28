@@ -7,7 +7,7 @@ import (
 
 //A node type
 //implements gographviz.GraphableNode
-type Interface struct {
+type interfaceNode struct {
 	target *baseType
 
 	//any functions required to implement the interface
@@ -17,33 +17,33 @@ type Interface struct {
 	//interfaces this inherits from
 	//if not zero, is composite interface
 	//Draw edges from these
-	inheritedInterfaces []*Interface
+	inheritedInterfaces []*interfaceNode
 
 	//structs
 	//Draw edges from these
-	implementedByCache []*Struct
+	implementedByCache []*structNode
 
 	extraAttrs gographviz.Attrs
 
 	astNode *ast.InterfaceType
 }
 
-func (i *Interface) String() string {
+func (i *interfaceNode) String() string {
 	return i.target.String()
 }
 
-func (i *Interface) Name() string {
+func (i *interfaceNode) Name() string {
 	return i.target.Name()
 }
 
-func (i *Interface) Attrs() gographviz.Attrs {
+func (i *interfaceNode) Attrs() gographviz.Attrs {
 	retval := make(map[string]string)
 	retval["shape"] = "Mrecord"
 	retval["label"] = i.label()
 	return retval
 }
 
-func (i *Interface) Edges() []*gographviz.Edge {
+func (i *interfaceNode) Edges() []*gographviz.Edge {
 	var retval []*gographviz.Edge
 
 	retval = make([]*gographviz.Edge, 0, len(i.inheritedInterfaces)+len(i.implementedByCache))
@@ -60,11 +60,11 @@ func (i *Interface) Edges() []*gographviz.Edge {
 	return retval
 }
 
-func (i *Interface) highlyImplemented() bool {
+func (i *interfaceNode) highlyImplemented() bool {
 	return len(i.implementedByCache) > *implementMax
 }
 
-func (i *Interface) label() string {
+func (i *interfaceNode) label() string {
 	retval := "\"{" + i.String() + "|"
 
 	if i.highlyImplemented() {
@@ -86,7 +86,7 @@ func (i *Interface) label() string {
 	return retval
 }
 
-func (i *Interface) implementedAttrs() map[string]string {
+func (i *interfaceNode) implementedAttrs() map[string]string {
 	retval := make(map[string]string)
 	retval["label"] = "implements"
 	if i.highlyImplemented() {
@@ -98,7 +98,7 @@ func (i *Interface) implementedAttrs() map[string]string {
 }
 
 //no mutation
-func (i *Interface) isImplementedBy(s *Struct) bool {
+func (i *interfaceNode) isImplementedBy(s *structNode) bool {
 	required := i.allRequiredFunctions()
 	have := s.allreceiverFunctions()
 
@@ -119,18 +119,18 @@ func (i *Interface) isImplementedBy(s *Struct) bool {
 	return true
 }
 
-func (i *Interface) setImplementedBy(s []*Struct) []*Struct {
+func (i *interfaceNode) setImplementedBy(s []*structNode) []*structNode {
 	retval := i.implementedBy(s)
 
-	i.implementedByCache = make([]*Struct, len(retval))
+	i.implementedByCache = make([]*structNode, len(retval))
 	copy(i.implementedByCache, retval)
 
 	return retval
 }
 
 //filter pattern
-func (i *Interface) implementedBy(s []*Struct) []*Struct {
-	var retval []*Struct
+func (i *interfaceNode) implementedBy(s []*structNode) []*structNode {
+	var retval []*structNode
 
 	for _, v := range s {
 		if i.isImplementedBy(v) {
@@ -142,7 +142,7 @@ func (i *Interface) implementedBy(s []*Struct) []*Struct {
 }
 
 //no mutation
-func (i *Interface) allRequiredFunctions() []*function {
+func (i *interfaceNode) allRequiredFunctions() []*function {
 	retval := make([]*function, len(i.requiredFunctions))
 	c := copy(retval, i.requiredFunctions)
 	if c != len(i.requiredFunctions) {
@@ -157,14 +157,14 @@ func (i *Interface) allRequiredFunctions() []*function {
 }
 
 //for if interface is found as an Anonymous member of something else first
-func newInterfaceUnknown(source *Interface, b *baseType) *Interface {
-	retval := &Interface{b, make([]*function, 0), make([]*Interface, 0), nil, nil, nil}
+func newInterfaceUnknown(source *interfaceNode, b *baseType) *interfaceNode {
+	retval := &interfaceNode{b, make([]*function, 0), make([]*interfaceNode, 0), nil, nil, nil}
 	b.addNode(retval)
 
 	return retval
 }
 
-func (i *Interface) remakeInterfaceInternals(interfaceType *ast.InterfaceType) {
+func (i *interfaceNode) remakeInterfaceInternals(interfaceType *ast.InterfaceType) {
 	for _, v := range interfaceType.Methods.List {
 		if len(v.Names) != 0 {
 			f := funcMap.lookupOrAddFromExpr(v.Names[0].Name, v.Type.(*ast.FuncType))
@@ -174,7 +174,7 @@ func (i *Interface) remakeInterfaceInternals(interfaceType *ast.InterfaceType) {
 			lookup := typeMap.lookupOrAddFromExpr(v.Type)
 			node := lookup.base.node
 			if node != nil {
-				i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*Interface))
+				i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*interfaceNode))
 			} else {
 				i.inheritedInterfaces = append(i.inheritedInterfaces, newInterfaceUnknown(i, lookup.base))
 			}
@@ -182,7 +182,7 @@ func (i *Interface) remakeInterfaceInternals(interfaceType *ast.InterfaceType) {
 	}
 }
 
-func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
+func (i *interfaceNode) remakeInterface(spec *ast.TypeSpec) *interfaceNode {
 	interfaceType, ok := spec.Type.(*ast.InterfaceType)
 	if !ok {
 		panic("bad ast.TypeSpec that is not InterfaceType in newInterface")
@@ -198,14 +198,14 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 //(comma seperated list of names) Type -> namedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func newInterface(spec *ast.TypeSpec, b *baseType) *Interface {
+func newInterface(spec *ast.TypeSpec, b *baseType) *interfaceNode {
 	interfaceType, ok := spec.Type.(*ast.InterfaceType)
 	if !ok {
 		panic("bad ast.TypeSpec that is not InterfaceType in newInterface")
 	}
 
 	//should only be used with declarations, if struct is in field names use newStructUnknown
-	retval := &Interface{b, make([]*function, 0), make([]*Interface, 0), nil, nil, interfaceType}
+	retval := &interfaceNode{b, make([]*function, 0), make([]*interfaceNode, 0), nil, nil, interfaceType}
 
 	retval.remakeInterfaceInternals(interfaceType)
 
