@@ -32,7 +32,7 @@ Connections:
 		inherited
 		field
 
-Usage of golangTypeGraph:
+Flags for golangTypeGraph:
 
 	-exports
     	marks whether only exported nodes are shown
