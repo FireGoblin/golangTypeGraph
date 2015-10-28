@@ -22,4 +22,4 @@ func (i *implements) id() int {
 	return i.id
 }
 
-type Redefined implements
+type redefined implements

@@ -8,11 +8,13 @@ import (
 	"strings"
 )
 
-//ordering is important
+// Normalized is a function to return the same FieldList for any function
+// with a matching signature.  exp: Normalized(func(x,y int)) == Normalized(func(a int, b int))
 func Normalized(f *ast.FieldList) *ast.FieldList {
 	return RemoveNames(Flattened(f))
 }
 
+// Flattened converts any fields with multiple names into multiple fields
 func Flattened(f *ast.FieldList) *ast.FieldList {
 	if f == nil {
 		return nil
@@ -36,6 +38,7 @@ func Flattened(f *ast.FieldList) *ast.FieldList {
 	return x
 }
 
+// RemoveNames removes the names from all fields in the FieldList
 func RemoveNames(f *ast.FieldList) *ast.FieldList {
 	if f == nil {
 		return nil
@@ -52,22 +55,24 @@ func RemoveNames(f *ast.FieldList) *ast.FieldList {
 	return x
 }
 
-func BaseTypeOf(expr ast.Expr) ast.Expr {
+// RootTypeOf recurses through the expr to find the base type of the expression
+func RootTypeOf(expr ast.Expr) ast.Expr {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
-		return BaseTypeOf(e.X)
+		return RootTypeOf(e.X)
 	case *ast.ChanType:
-		return BaseTypeOf(e.Value)
+		return RootTypeOf(e.Value)
 	case *ast.MapType:
 		//TODO: Better system for breaking up map types
-		return BaseTypeOf(e.Value)
+		return RootTypeOf(e.Value)
 	case *ast.ArrayType:
-		return BaseTypeOf(e.Elt)
+		return RootTypeOf(e.Elt)
 	}
 
 	return expr
 }
 
+// RecursiveTypeOf removes the top level of the expr and returns the result
 func RecursiveTypeOf(expr ast.Expr) ast.Expr {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
@@ -84,6 +89,7 @@ func RecursiveTypeOf(expr ast.Expr) ast.Expr {
 	return nil
 }
 
+// ReplaceSelector replaces the SelectorExpr in expr with its Sel field
 func ReplaceSelector(expr ast.Expr) (replaced ast.Expr, X *ast.Ident) {
 	switch e := expr.(type) {
 	case *ast.StarExpr:
@@ -107,10 +113,6 @@ func ReplaceSelector(expr ast.Expr) (replaced ast.Expr, X *ast.Ident) {
 	}
 
 	return expr, nil
-}
-
-func stringWithPkg(pkg string, expr ast.Expr) string {
-	return String(insertPkg(pkg, expr))
 }
 
 func insertPkg(pkg string, expr ast.Expr) ast.Expr {
@@ -139,6 +141,11 @@ func insertPkg(pkg string, expr ast.Expr) ast.Expr {
 	return nil
 }
 
+func stringWithPkg(pkg string, expr ast.Expr) string {
+	return String(insertPkg(pkg, expr))
+}
+
+// String uses recursion to print the ast.Node as it would appear in code
 func String(expr ast.Node) string {
 	switch e := expr.(type) {
 	case *ast.Ident:
@@ -203,7 +210,7 @@ func String(expr ast.Node) string {
 		return x
 	case *ast.Field:
 		//assumes a parameter style Field (x func(int)string)
-		//use StringInterfaceField for interface fields (x(int)string)
+		//use stringInterfaceField for interface fields (x(int)string)
 		x := ""
 		for _, v := range e.Names {
 			x += v.Name + ", "
@@ -222,7 +229,6 @@ func String(expr ast.Node) string {
 	}
 }
 
-//*ast.Field in String() assumes a parameter style Field, this works for interface field
-func StringInterfaceField(name string, expr *ast.FuncType) string {
+func stringInterfaceField(name string, expr *ast.FuncType) string {
 	return name + String(expr.Params) + " " + String(expr.Results)
 }

@@ -3,11 +3,11 @@ package main
 import "github.com/firegoblin/gographviz"
 
 //represents any type without pointer
-type BaseType struct {
+type baseType struct {
 	//string representation of type
 	name string
 
-	//where the BaseType's information is stored
+	//where the baseType's information is stored
 	//may be nil
 	node gographviz.GraphableNode
 
@@ -15,17 +15,17 @@ type BaseType struct {
 }
 
 //type handles associating allLevels
-func newBase(s string, pkg string) *BaseType {
-	x := BaseType{s, nil, pkg}
+func newBase(s string, pkg string) *baseType {
+	x := baseType{s, nil, pkg}
 	return &x
 }
 
-func (b *BaseType) addNode(n gographviz.GraphableNode) {
+func (b *baseType) addNode(n gographviz.GraphableNode) {
 	b.node = n
 }
 
 //Name is safe for use in graph
-func (b BaseType) Name() string {
+func (b baseType) Name() string {
 	retval := b.pkgName
 	if retval == *defaultPackageName {
 		retval = ""
@@ -40,7 +40,7 @@ var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error
 	"int", "int8", "int16", "int32", "int64",
 	"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
 
-func (b BaseType) stringRelativePkg(pkg string) string {
+func (b baseType) stringRelativePkg(pkg string) string {
 	retval := b.pkgName
 	if retval == pkg {
 		retval = ""
@@ -65,6 +65,6 @@ func (b BaseType) stringRelativePkg(pkg string) string {
 	return retval
 }
 
-func (b BaseType) String() string {
+func (b baseType) String() string {
 	return b.stringRelativePkg(*defaultPackageName)
 }

@@ -61,7 +61,7 @@ func main() {
 
 	var structList []*Struct
 	var interfaceList []*Interface
-	var funcList []*Function
+	var funcList []*function
 
 	var directories []string
 	directories = append(directories, *filename)

@@ -8,11 +8,11 @@ import (
 //A node type
 //implements gographviz.GraphableNode
 type Interface struct {
-	target *BaseType
+	target *baseType
 
 	//any functions required to implement the interface
 	//does not include functions inherited indirectly through inheritedInterfaces
-	requiredFunctions []*Function
+	requiredFunctions []*function
 
 	//interfaces this inherits from
 	//if not zero, is composite interface
@@ -142,8 +142,8 @@ func (i *Interface) implementedBy(s []*Struct) []*Struct {
 }
 
 //no mutation
-func (i *Interface) allRequiredFunctions() []*Function {
-	retval := make([]*Function, len(i.requiredFunctions))
+func (i *Interface) allRequiredFunctions() []*function {
+	retval := make([]*function, len(i.requiredFunctions))
 	c := copy(retval, i.requiredFunctions)
 	if c != len(i.requiredFunctions) {
 		panic("copy failed in allRequiredFunctions")
@@ -157,8 +157,8 @@ func (i *Interface) allRequiredFunctions() []*Function {
 }
 
 //for if interface is found as an Anonymous member of something else first
-func newInterfaceUnknown(source *Interface, b *BaseType) *Interface {
-	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), nil, nil, nil}
+func newInterfaceUnknown(source *Interface, b *baseType) *Interface {
+	retval := &Interface{b, make([]*function, 0), make([]*Interface, 0), nil, nil, nil}
 	b.addNode(retval)
 
 	return retval
@@ -198,14 +198,14 @@ func (i *Interface) remakeInterface(spec *ast.TypeSpec) *Interface {
 //(comma seperated list of names) Type -> namedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func newInterface(spec *ast.TypeSpec, b *BaseType) *Interface {
+func newInterface(spec *ast.TypeSpec, b *baseType) *Interface {
 	interfaceType, ok := spec.Type.(*ast.InterfaceType)
 	if !ok {
 		panic("bad ast.TypeSpec that is not InterfaceType in newInterface")
 	}
 
 	//should only be used with declarations, if struct is in field names use newStructUnknown
-	retval := &Interface{b, make([]*Function, 0), make([]*Interface, 0), nil, nil, interfaceType}
+	retval := &Interface{b, make([]*function, 0), make([]*Interface, 0), nil, nil, interfaceType}
 
 	retval.remakeInterfaceInternals(interfaceType)
 

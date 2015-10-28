@@ -4,11 +4,11 @@ import "go/ast"
 
 //master map uses singleton pattern, only one of them should be created in the program
 //only master should call creators for types
-type masterFuncMap map[string]*Function
+type masterFuncMap map[string]*function
 
-var funcMap = masterFuncMap(make(map[string]*Function))
+var funcMap = masterFuncMap(make(map[string]*function))
 
-func (m masterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Function {
+func (m masterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *function {
 	namelessExpr := &ast.FuncType{0, nil, nil}
 
 	namelessExpr.Params = Normalized(expr.Params)

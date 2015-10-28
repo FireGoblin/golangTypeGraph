@@ -3,11 +3,11 @@ package main
 import "go/ast"
 
 type receiverFunction struct {
-	f             *Function
+	f             *function
 	receiverField namedType
 }
 
-func newReceiverFunction(f *Function, field *ast.Field) receiverFunction {
+func newReceiverFunction(f *function, field *ast.Field) receiverFunction {
 	return receiverFunction{f, newNamedTypeFromField(field)}
 }
 

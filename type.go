@@ -4,7 +4,7 @@ import "go/ast"
 
 type Type struct {
 	name    string
-	base    *BaseType
+	base    *baseType
 	astNode ast.Expr
 }
 
@@ -23,7 +23,7 @@ func newTypeFromExpr(expr ast.Expr, pkg string) *Type {
 func sharedNewType(s string, expr ast.Expr, pkg string) *Type {
 	var baseType string
 	if expr != nil {
-		baseType = String(BaseTypeOf(expr))
+		baseType = String(RootTypeOf(expr))
 	} else {
 		baseType = s
 	}
@@ -53,7 +53,7 @@ func sharedNewType(s string, expr ast.Expr, pkg string) *Type {
 }
 
 //never call outside of newType
-func newTypeRecursive(s string, b *BaseType, expr ast.Expr, pkg string) {
+func newTypeRecursive(s string, b *baseType, expr ast.Expr, pkg string) {
 	x := Type{s, b, expr}
 	typeMap.theMap[pkg][s] = &x
 

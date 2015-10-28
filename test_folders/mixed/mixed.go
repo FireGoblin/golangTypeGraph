@@ -67,33 +67,33 @@ func (l *loseItAll) id() int {
 	return 0
 }
 
-type Direct struct {
+type direct struct {
 	threeFunctions
 }
 
-type Indirect struct {
+type indirect struct {
 	oneFunction
 	twoFunctions
 }
 
-type Mixed struct {
+type mixed struct {
 	implements
 	twoFunctions
 }
 
-type Manual struct {
+type manual struct {
 	twoFunctions
 	id int
 }
 
-func (m *Manual) id() int {
+func (m *manual) id() int {
 	return m.id
 }
 
-type OnlyOne struct {
+type onlyOne struct {
 	oneFunction
 }
 
-type OnlyTwo struct {
+type onlyTwo struct {
 	twoFunctions
 }

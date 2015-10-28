@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type Function struct {
+type function struct {
 	//name for function
 	name string
 
@@ -24,11 +24,11 @@ type Function struct {
 	astNode *ast.FuncType
 }
 
-func (f *Function) String() string {
-	return StringInterfaceField(f.name, f.astNode)
+func (f *function) String() string {
+	return stringInterfaceField(f.name, f.astNode)
 }
 
-func (f *Function) lookupString() string {
+func (f *function) lookupString() string {
 	retval := f.name + "("
 	for _, v := range f.paramTypes {
 		retval += v.String() + ", "
@@ -48,7 +48,7 @@ func (f *Function) lookupString() string {
 	return retval
 }
 
-func newFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
+func newFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *function {
 	typ := typeMap.lookupOrAddFromExpr(f)
 
 	var paramsProcessed = make([]*Type, 0)
@@ -67,7 +67,7 @@ func newFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {
 	}
 
 	//TODO eventually: re-add paramTypes and returnTypes
-	retval := &Function{s, typ, paramsProcessed, resultsProcessed, false, f}
+	retval := &function{s, typ, paramsProcessed, resultsProcessed, false, f}
 
 	return retval
 }

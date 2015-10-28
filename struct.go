@@ -10,7 +10,7 @@ import (
 //A node type
 //implements gographviz.GraphableNode
 type Struct struct {
-	target *BaseType
+	target *baseType
 
 	//if this is not nil, it is a redefined type
 	//edge is drawable if parent.base.node is not nil
@@ -23,7 +23,7 @@ type Struct struct {
 	receiverFunctions []receiverFunction
 
 	//structs or interfaces included anonymously in this struct
-	inheritedTypes []*BaseType
+	inheritedTypes []*baseType
 
 	//interfaces this node implements
 	interfaceCache []*Interface
@@ -35,7 +35,7 @@ type Struct struct {
 	astNode ast.Expr
 }
 
-func (s *Struct) addFunction(f *Function, field *ast.Field) {
+func (s *Struct) addFunction(f *function, field *ast.Field) {
 	s.receiverFunctions = append(s.receiverFunctions, newReceiverFunction(f, field))
 	f.isReceiver = true
 }
@@ -153,8 +153,8 @@ func fieldAttrs() map[string]string {
 }
 
 //no mutation
-func (s *Struct) allreceiverFunctions() []*Function {
-	retval := make([]*Function, len(s.receiverFunctions))
+func (s *Struct) allreceiverFunctions() []*function {
+	retval := make([]*function, len(s.receiverFunctions))
 	for _, v := range s.receiverFunctions {
 		retval = append(retval, v.f)
 	}
@@ -245,9 +245,9 @@ func (s *Struct) remakeStructInternals(spec *ast.TypeSpec) {
 //(comma seperated list of names) Type -> namedTypes
 //b: the baseType for this struct
 //lines: lines from the structs declaration block, preceeding and trailing whitespace removed
-func newStruct(spec *ast.TypeSpec, b *BaseType) *Struct {
+func newStruct(spec *ast.TypeSpec, b *baseType) *Struct {
 	//should only be used with declarations, if struct is in field names use newStructUnknown
-	retval := &Struct{b, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*BaseType, 0), nil, nil, spec.Type}
+	retval := &Struct{b, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*baseType, 0), nil, nil, spec.Type}
 
 	retval.remakeStructInternals(spec)
 
