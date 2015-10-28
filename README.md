@@ -35,6 +35,8 @@ Connections:
 
 Flags for golangTypeGraph:
 
+	-env string
+		environment variable to use instead of GOPATH (default "GOPATH")
 	-exports
     	marks whether only exported nodes are shown
   	-file string
@@ -73,6 +75,7 @@ future improvements:
 
 	Add connections to functions, partiularly interfaces to functions they're used in
 	Add tests to allow safer changes.
+	Better attributes, especially to ensure a less cluttered layout.
 
 
 known bug:

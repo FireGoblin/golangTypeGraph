@@ -14,6 +14,10 @@ type namedType struct {
 }
 
 func (n namedType) String() string {
+	if n.name == "" {
+		return n.target.String()
+	}
+
 	return n.name + " " + n.target.String()
 }
 
@@ -26,8 +30,10 @@ func (n namedType) Node() gographviz.GraphableNode {
 }
 
 func newNamedTypeFromField(f *ast.Field) namedType {
-	if len(f.Names) != 1 {
-		panic(fmt.Sprintf("tried to created namedType with %d names", len(f.Names)))
+	if len(f.Names) > 1 {
+		panic(fmt.Sprintf("tried to create namedType with %d names", len(f.Names)))
+	} else if len(f.Names) == 0 {
+		return namedType{"", typeMap.lookupOrAddFromExpr(f.Type)}
 	}
 
 	return namedType{f.Names[0].Name, typeMap.lookupOrAddFromExpr(f.Type)}

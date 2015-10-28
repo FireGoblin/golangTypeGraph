@@ -146,7 +146,7 @@ func stringWithPkg(pkg string, expr ast.Expr) string {
 }
 
 // String uses recursion to print the ast.Node as it would appear in code
-func String(expr ast.Node) string {
+func String(expr ast.Node) (s string) {
 	switch e := expr.(type) {
 	case *ast.Ident:
 		return e.Name
@@ -161,6 +161,11 @@ func String(expr ast.Node) string {
 	case *ast.BinaryExpr:
 		return String(e.X) + " " + e.Op.String() + " " + String(e.Y)
 	case *ast.ArrayType:
+		defer func() {
+			if r := recover(); r != nil {
+				s = "[complex_expr]" + String(e.Elt)
+			}
+		}()
 		return "[" + String(e.Len) + "]" + String(e.Elt)
 	case *ast.ChanType:
 		switch e.Dir {
@@ -221,6 +226,9 @@ func String(expr ast.Node) string {
 			x += " "
 		}
 		x += String(e.Type)
+		return x
+	case *ast.ParenExpr:
+		x := "(" + String(e.X) + ")"
 		return x
 	case nil:
 		return ""
