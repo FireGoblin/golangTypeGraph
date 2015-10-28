@@ -1,3 +1,5 @@
+<h1>golangTypeGraph<h1>
+
 Description:
 
 	Outputs a graphviz compatible .dot file that is a graph of the connections of different types in the target dir.
@@ -15,9 +17,10 @@ Basic Installation:
 Basic Usage:
 
 	golangTypeGraph github.com/UserName/TargetDir > output.dot
-	dot -T
+	dot -Tpng output.dot > output.png
 
 Connections:
+
 	Struct -> Struct:
 		parent
 		field
@@ -29,6 +32,7 @@ Connections:
 		field
 
 Usage of golangTypeGraph:
+
   -exports
     	marks whether only exported nodes are shown
   -file string
@@ -49,6 +53,7 @@ assumptions for target dir:
 	Receiver functions are in same file as the struct
 	Expects dir to be in $GOPATH/src
 	Assumes default golang style import folders
+	Does not use import .
 
 
 flag ideas:
