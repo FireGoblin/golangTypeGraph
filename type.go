@@ -75,5 +75,16 @@ func (t Type) stringRelativePkg(pkg string) string {
 		return t.name
 	}
 
+	found := false
+	for _, v := range builtinTypes {
+		if v == t.base.name {
+			found = true
+			break
+		}
+	}
+	if found {
+		return t.name
+	}
+
 	return stringWithPkg(t.base.pkgName, t.astNode)
 }

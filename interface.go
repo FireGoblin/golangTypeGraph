@@ -144,10 +144,7 @@ func (i *interfaceNode) implementedBy(s []*structNode) []*structNode {
 //no mutation
 func (i *interfaceNode) allRequiredFunctions() []*function {
 	retval := make([]*function, len(i.requiredFunctions))
-	c := copy(retval, i.requiredFunctions)
-	if c != len(i.requiredFunctions) {
-		panic("copy failed in allRequiredFunctions")
-	}
+	copy(retval, i.requiredFunctions)
 
 	for _, v := range i.inheritedInterfaces {
 		retval = append(retval, v.allRequiredFunctions()...)

@@ -56,7 +56,7 @@ assumptions for target dir:
 
 	Compiles
 	Receiver functions are in same file as the struct
-	Expects dir to be in $GOPATH/src
+	Expects dir to be in $GOPATH/src (unless -goroot=true, then its in $GOROOT/src)
 	Assumes default golang style import folders
 	Does not use import .
 

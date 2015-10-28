@@ -18,6 +18,10 @@ func (m masterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *fun
 
 	s := newFunc.lookupString()
 
+	//if strings.Contains(s, "string") {
+	//	fmt.Println(s)
+	//}
+
 	x, ok := m[s]
 
 	if ok && x.astNode == nil {

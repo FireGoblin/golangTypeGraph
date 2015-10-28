@@ -17,6 +17,7 @@ var defaultPackageName = flag.String("pkg", "main", "the package that will not h
 var onlyExports = flag.Bool("exports", false, "marks whether only exported nodes are shown")
 var withImports = flag.Bool("imports", true, "whether or not to parse import directories recrusively")
 var implementMax = flag.Int("imax", 9, "the maximum number of structs implementing an interface before edges are not drawn")
+var useGoRoot = flag.Bool("goroot", false, "if true, use $GOROOT as root of path instead of $GOPATH")
 
 func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*structNode, interfaceList *[]*interfaceNode) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)
@@ -57,7 +58,12 @@ func main() {
 	var pkgs map[string]*ast.Package
 	var err error
 
-	gopath := os.Getenv("GOPATH") + "/src/"
+	var gopath string
+	if *useGoRoot {
+		gopath = os.Getenv("GOROOT") + "/src/"
+	} else {
+		gopath = os.Getenv("GOPATH") + "/src/"
+	}
 
 	var structList []*structNode
 	var interfaceList []*interfaceNode
