@@ -2,14 +2,15 @@
 
 Description:
 
-	Outputs a graphviz compatible .dot file that is a graph of the connections of different types in the target dir.
-	Uses the fork https://github.com/firegoblin/gographviz of https://github.com/awalterschulze/gographviz
-	to handle making the dot file.  The fork adds an interface for GraphableNode and functions upon it to work with the program.
-	Use go/ast and go/parser extensively for parsing the target dir.
+	Outputs a graphviz compatible .dot file that is a graph of the connections of
+	different types in the target dir. Uses the fork github.com/firegoblin/gographviz
+	of https://github.com/awalterschulze/gographviz to handle making the dot file.  
+	The fork adds an interface for GraphableNode and functions upon it to work with
+	the program.  Uses go/ast and go/parser extensively for parsing the target dir.
 
 Basic Installation:
 
-	brew install graphviz (or visit http://www.graphviz.org/ for other installation options)
+	brew install graphviz (or visit http://www.graphviz.org/ for other options)
 
 	go get github.com/firegoblin/golangTypeGraph
 	go get github.com/firegoblin/gographviz
@@ -37,13 +38,16 @@ Flags for golangTypeGraph:
 	-exports
     	marks whether only exported nodes are shown
   	-file string
-    	file to parse on, relative to $GOPATH/src (default "github.com/firegoblin/golangTypeGraph")
+    	file to parse on, relative to $GOPATH/src
+    	(default "github.com/firegoblin/golangTypeGraph")
   	-imax int
-    	the maximum number of structs implementing an interface before edges are not drawn (default 9)
+    	the maximum number of structs implementing an interface before edges 
+    	are not drawn (default 9)
   	-imports
     	whether or not to parse import directories recrusively (default true)
   	-pkg string
-    	the package that will not have its types prefiexed with package name (default "main")
+    	the package that will not have its types prefiexed with package name 
+    	(default "main")
   	-test
     	whether or not to include test files in the graph (default true)
 
@@ -67,7 +71,7 @@ flag ideas:
 
 future improvements:
 
-	Add connections to functions, partiularly interfaces to functions using them as a parameter
+	Add connections to functions, partiularly interfaces to functions they're used in
 	Add tests to allow safer changes.
 
 
