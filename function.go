@@ -1,6 +1,7 @@
 package main
 
 import "go/ast"
+import "strings"
 
 type Function struct {
 	//name for function
@@ -23,6 +24,26 @@ type Function struct {
 
 func (f *Function) String() string {
 	return StringInterfaceField(f.name, f.astNode)
+}
+
+func (f *Function) lookupString() string {
+	retval := f.name + "("
+	for _, v := range f.paramTypes {
+		retval += v.String() + ", "
+	}
+	retval = strings.Trim(retval, ", ")
+	retval += ") "
+	if len(f.returnTypes) > 1 {
+		retval += "("
+	}
+	for _, v := range f.returnTypes {
+		retval += v.String() + ", "
+	}
+	retval = strings.Trim(retval, ", ")
+	if len(f.returnTypes) > 1 {
+		retval += ")"
+	}
+	return retval
 }
 
 func newFunction(s string, f *ast.FuncType, nameless *ast.FuncType) *Function {

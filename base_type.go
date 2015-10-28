@@ -36,11 +36,29 @@ func (b BaseType) Name() string {
 	return retval
 }
 
+var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error", "float32", "float64",
+	"int", "int8", "int16", "int32", "int64",
+	"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
+
 func (b BaseType) StringRelativePkg(pkg string) string {
 	retval := b.pkgName
 	if retval == pkg {
 		retval = ""
-	} else if retval != "" {
+	}
+
+	found := false
+	for _, v := range builtinTypes {
+		if v == retval {
+			found = true
+			break
+		}
+	}
+
+	if found {
+		retval = ""
+	}
+
+	if retval != "" {
 		retval += "."
 	}
 	retval += b.name

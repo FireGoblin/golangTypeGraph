@@ -14,14 +14,16 @@ func (m masterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *Fun
 	namelessExpr.Params = Normalized(expr.Params)
 	namelessExpr.Results = Normalized(expr.Results)
 
-	s := StringInterfaceField(name, namelessExpr)
+	newFunc := newFunction(name, expr, namelessExpr)
+
+	s := newFunc.lookupString()
 
 	x, ok := m[s]
 
 	if ok && x.astNode == nil {
 		x.astNode = expr
 	} else if !ok {
-		m[s] = newFunction(name, expr, namelessExpr)
+		m[s] = newFunc
 
 		//error checking
 		x, ok = m[s]
