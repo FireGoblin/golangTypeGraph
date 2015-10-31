@@ -18,6 +18,10 @@ var onlyExports = flag.Bool("exports", false, "marks whether only exported nodes
 var implementMax = flag.Int("imax", 9, "the maximum number of structs implementing an interface before edges are not drawn")
 var envVar = flag.String("env", "GOPATH", "environment variable to use instead of GOPATH")
 var maxDepth = flag.Int("depth", 1, "maximum depth of recursively searching imports")
+var edgelessNodes = flag.Bool("edgeless", true, "include nodes that have no edges connected to them")
+
+//var operatingSystem = flag.String("os", "linux", "define the os to use when choosing os specific files")
+//var operatingArchitecture = flag.String("arch", "amd64", "define the architecture to use when choosing os specific files")
 
 func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*structNode, interfaceList *[]*interfaceNode) {
 	decl, ok := obj.Decl.(*ast.TypeSpec)
@@ -44,9 +48,22 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*structNode, inte
 		if node == nil {
 			*structList = append(*structList, newStruct(decl, typ.base))
 		} else {
-			*structList = append(*structList, node.(*unknownNode).remakeStruct(decl))
+			//fmt.Println(node)
+			switch n := node.(type) {
+			case *unknownNode:
+				*structList = append(*structList, n.remakeStruct(decl))
+			default:
+				fmt.Fprintln(os.Stderr, "attempt to recreate struct:", n)
+			}
 		}
 	}
+}
+
+//var osVar = [...]string{"freebsd", "windows", "linux", "dragonfly", "openbsd", "netbsd", "darwin", "plan9", "solaris", "nacl"}
+//var arch = [...]string{"386", "amd64", "arm"}
+
+func legalFile(f os.FileInfo) bool {
+	return !strings.Contains(f.Name(), "_test.go")
 }
 
 func main() {
@@ -78,9 +95,7 @@ func main() {
 		if *includeTestFiles {
 			pkgs, err = parser.ParseDir(fset, gopath+directories[len(directories)-1], nil, 0)
 		} else {
-			pkgs, err = parser.ParseDir(fset, gopath+directories[len(directories)-1], func(f os.FileInfo) bool {
-				return !strings.Contains(f.Name(), "_test.go")
-			}, 0)
+			pkgs, err = parser.ParseDir(fset, gopath+directories[len(directories)-1], legalFile, 0)
 		}
 
 		dep := depth[len(depth)-1]
@@ -151,7 +166,15 @@ func main() {
 						if d.Recv != nil {
 							recv := typeMap.lookupOrAddFromExpr(d.Recv.List[0].Type).base.node
 							if recv != nil {
-								recv.(*structNode).addFunction(f, d.Recv.List[0])
+								//fmt.Println(d.Recv.List[0])
+								switch r := recv.(type) {
+								case *structNode:
+									r.addFunction(f, d.Recv.List[0])
+								case *unknownNode:
+									r.addFunction(f, d.Recv.List[0])
+								default:
+									panic("trying to add receiver to interface")
+								}
 							}
 						}
 					}
@@ -172,6 +195,10 @@ func main() {
 	}
 	for _, i := range interfaceList {
 		g.AddGraphableNode("G", i)
+	}
+	if !*edgelessNodes {
+		fmt.Fprintln(os.Stderr, "removing edgeless nodes")
+		g.RemoveEdgelessNodes("G")
 	}
 	s := g.String()
 	fmt.Println(s)

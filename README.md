@@ -57,11 +57,14 @@ Flags for golangTypeGraph:
 assumptions for target dir:
 
 	Compiles
-	Receiver functions are in same file as the struct
-	Expects dir to be in $GOPATH/src (unless -goroot=true, then its in $GOROOT/src)
-	Assumes default golang style import folders
-	Does not use import .
-	No repeat definitions of a type in a package
+	Expects dir to be in $GOPATH/src (unless -env is set, then checks in in $<env>/src)
+	Assumes default golang style import folders (no )
+	Does not use import . or renaming
+
+workarounds:
+
+	Repeat definitions are ignored (temporary workaround for OS specific files)
+	Error handling added to ignore unexpected case to not completely crash
 
 
 flag ideas:

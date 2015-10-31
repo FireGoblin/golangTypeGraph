@@ -67,12 +67,17 @@ func (s *structNode) Edges() []*gographviz.Edge {
 
 	for _, v := range s.inheritedTypes {
 		//TODO: decide on attrs
-		retval = append(retval, &gographviz.Edge{v.node.Name(), "", s.Name(), "", true, inheritedAttrs()})
+		if _, ok := v.node.(*unknownNode); !ok && v.node != nil {
+			retval = append(retval, &gographviz.Edge{v.node.Name(), "", s.Name(), "", true, inheritedAttrs()})
+		}
 	}
 
 	fieldList := make([]gographviz.GraphableNode, len(s.fields))
 	for _, f := range s.fields {
-		holder := f.Node()
+		holder := f.node()
+		if _, ok := holder.(*unknownNode); ok {
+			continue
+		}
 		if holder != nil {
 			//avoid duplicates
 			found := false
@@ -82,7 +87,7 @@ func (s *structNode) Edges() []*gographviz.Edge {
 					break
 				}
 			}
-			if !found {
+			if !found && holder != nil {
 				retval = append(retval, &gographviz.Edge{holder.Name(), "", s.Name(), "", true, fieldAttrs()})
 				fieldList = append(fieldList, holder)
 			}

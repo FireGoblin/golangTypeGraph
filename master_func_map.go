@@ -16,7 +16,7 @@ func (m masterFuncMap) lookupOrAddFromExpr(name string, expr *ast.FuncType) *fun
 
 	newFunc := newFunction(name, expr, namelessExpr)
 
-	s := newFunc.lookupString()
+	s := newFunc.String()
 
 	//if strings.Contains(s, "string") {
 	//	fmt.Println(s)

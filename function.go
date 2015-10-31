@@ -25,10 +25,6 @@ type function struct {
 }
 
 func (f *function) String() string {
-	return stringInterfaceField(f.name, f.astNode)
-}
-
-func (f *function) lookupString() string {
 	retval := f.name + "("
 	for _, v := range f.paramTypes {
 		retval += v.String() + ", "

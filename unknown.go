@@ -11,6 +11,9 @@ import (
 //implements gographviz.GraphableNode
 type unknownNode struct {
 	target *baseType
+
+	//added to handle files where receiver methods declared on a struct not in the file
+	receiverFunctions []receiverFunction
 }
 
 func (u *unknownNode) Name() string {
@@ -27,17 +30,23 @@ func (u *unknownNode) Edges() []*gographviz.Edge {
 
 //for if struct is found as an Anonymous member of something else first
 func newUnknown(source *structNode, b *baseType) *unknownNode {
-	retval := &unknownNode{b}
+	retval := &unknownNode{b, make([]receiverFunction, 0)}
 	b.addNode(retval)
 
 	return retval
 }
 
+func (s *unknownNode) addFunction(f *function, field *ast.Field) {
+	s.receiverFunctions = append(s.receiverFunctions, newReceiverFunction(f, field))
+	f.isReceiver = true
+}
+
 func (u *unknownNode) remakeStruct(spec *ast.TypeSpec) *structNode {
-	retval := &structNode{u.target, nil, make([]namedType, 0), make([]receiverFunction, 0), make([]*baseType, 0), nil, nil, spec.Type}
+	retval := &structNode{u.target, nil, make([]namedType, 0), make([]receiverFunction, len(u.receiverFunctions)), make([]*baseType, 0), nil, nil, spec.Type}
 
 	retval.remakeStructInternals(spec)
 
+	copy(retval.receiverFunctions, u.receiverFunctions)
 	retval.target.addNode(retval)
 	return retval
 }

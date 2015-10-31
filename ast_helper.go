@@ -84,6 +84,8 @@ func RecursiveTypeOf(expr ast.Expr) ast.Expr {
 		return e.Value
 	case *ast.ArrayType:
 		return e.Elt
+	case *ast.Ellipsis:
+		return e.Elt
 	}
 
 	return nil
@@ -105,6 +107,10 @@ func ReplaceSelector(expr ast.Expr) (replaced ast.Expr, X *ast.Ident) {
 		local.Value, X = ReplaceSelector(e.Value)
 		return &local, X
 	case *ast.ArrayType:
+		local := *e
+		local.Elt, X = ReplaceSelector(e.Elt)
+		return &local, X
+	case *ast.Ellipsis:
 		local := *e
 		local.Elt, X = ReplaceSelector(e.Elt)
 		return &local, X
@@ -133,12 +139,15 @@ func insertPkg(pkg string, expr ast.Expr) ast.Expr {
 		local := *e
 		local.Elt = insertPkg(pkg, e.Elt)
 		return &local
+	case *ast.Ellipsis:
+		local := *e
+		local.Elt = insertPkg(pkg, e.Elt)
+		return &local
 	case *ast.Ident:
 		return &ast.SelectorExpr{ast.NewIdent(pkg), e}
 	}
 
-	//returning nil is an error
-	return nil
+	return expr
 }
 
 func stringWithPkg(pkg string, expr ast.Expr) string {
@@ -157,7 +166,7 @@ func String(expr ast.Node) (s string) {
 	case *ast.BasicLit:
 		return e.Value
 	case *ast.Ellipsis:
-		return "..."
+		return "..." + String(e.Elt)
 	case *ast.BinaryExpr:
 		return String(e.X) + " " + e.Op.String() + " " + String(e.Y)
 	case *ast.ArrayType:
@@ -170,9 +179,9 @@ func String(expr ast.Node) (s string) {
 	case *ast.ChanType:
 		switch e.Dir {
 		case ast.SEND:
-			return "chan<- " + String(e.Value)
+			return "chan\\<- " + String(e.Value)
 		case ast.RECV:
-			return "<-chan " + String(e.Value)
+			return "\\<-chan " + String(e.Value)
 		default:
 			return "chan " + String(e.Value)
 		}

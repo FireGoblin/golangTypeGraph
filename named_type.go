@@ -25,7 +25,7 @@ func (n namedType) stringRelativePkg(pkg string) string {
 	return n.name + " " + n.target.stringRelativePkg(pkg)
 }
 
-func (n namedType) Node() gographviz.GraphableNode {
+func (n namedType) node() gographviz.GraphableNode {
 	return n.target.base.node
 }
 

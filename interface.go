@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/firegoblin/gographviz"
 	"go/ast"
+	"os"
 )
 
 //A node type
@@ -52,9 +54,11 @@ func (i *interfaceNode) Edges() []*gographviz.Edge {
 		//TODO: decide on attrs
 		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, inheritedAttrs()})
 	}
-	for _, v := range i.implementedByCache {
-		//TODO: decide on attrs
-		retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, i.implementedAttrs()})
+	if !i.highlyImplemented() || *edgelessNodes {
+		for _, v := range i.implementedByCache {
+			//TODO: decide on attrs
+			retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, i.implementedAttrs()})
+		}
 	}
 
 	return retval
@@ -171,7 +175,13 @@ func (i *interfaceNode) remakeInterfaceInternals(interfaceType *ast.InterfaceTyp
 			lookup := typeMap.lookupOrAddFromExpr(v.Type)
 			node := lookup.base.node
 			if node != nil {
-				i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*interfaceNode))
+				switch n := node.(type) {
+				case *interfaceNode:
+					i.inheritedInterfaces = append(i.inheritedInterfaces, node.(*interfaceNode))
+				case *unknownNode:
+					i.inheritedInterfaces = append(i.inheritedInterfaces, newInterfaceUnknown(i, lookup.base))
+					fmt.Fprintln(os.Stderr, "unexpected unknown node", n.target.name, "in pkg", n.target.pkgName)
+				}
 			} else {
 				i.inheritedInterfaces = append(i.inheritedInterfaces, newInterfaceUnknown(i, lookup.base))
 			}
