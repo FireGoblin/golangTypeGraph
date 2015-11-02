@@ -101,26 +101,32 @@ func (i *interfaceNode) implementedAttrs() map[string]string {
 	return retval
 }
 
-//no mutation
-func (i *interfaceNode) isImplementedBy(s *structNode) bool {
-	required := i.allRequiredFunctions()
-	have := s.allreceiverFunctions()
-
-	for _, v := range required {
-		found := false
-		for _, j := range have {
-			if j == v {
-				found = true
-				break
-			}
+func containsFunction(have []*function, f *function) bool {
+	for _, v := range have {
+		if f == v {
+			return true
 		}
+	}
 
-		if !found {
+	return false
+}
+
+func containsAll(have []*function, required []*function) bool {
+	for _, v := range required {
+		if !containsFunction(have, v) {
 			return false
 		}
 	}
 
 	return true
+}
+
+//no mutation
+func (i *interfaceNode) isImplementedBy(s *structNode) bool {
+	required := i.allRequiredFunctions()
+	have := s.allreceiverFunctions()
+
+	return containsAll(have, required)
 }
 
 func (i *interfaceNode) setImplementedBy(s []*structNode) []*structNode {

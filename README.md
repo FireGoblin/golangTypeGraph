@@ -4,7 +4,7 @@ Description:
 
 	Outputs a graphviz compatible .dot file that is a graph of the connections of
 	different types in the target dir. Uses the fork github.com/firegoblin/gographviz
-	of https://github.com/awalterschulze/gographviz to handle making the dot file.  
+	of github.com/awalterschulze/gographviz to handle making the dot file.
 	The fork adds an interface for GraphableNode and functions upon it to work with
 	the program.  Uses go/ast and go/parser extensively for parsing the target dir.
 
@@ -13,7 +13,6 @@ Basic Installation:
 	brew install graphviz (or visit http://www.graphviz.org/ for other options)
 
 	go get github.com/firegoblin/golangTypeGraph
-	go get github.com/firegoblin/gographviz
 	go install github.com/firegoblin/golangTypeGraph
 
 Basic Usage:
@@ -35,21 +34,20 @@ Connections:
 
 Flags for golangTypeGraph:
 
-	-depth int
-		maximum depth of recursively searching imports (default 1)
-	-env string
-		environment variable to use instead of GOPATH (default "GOPATH")
-	-exports
+  	-depth int
+    	maximum depth of recursively searching imports (default 1)
+  	-edgeless
+    	include nodes that have no edges connected to them (default true)
+  	-env string
+    	environment variable to use instead of GOPATH (default "GOPATH")
+  	-exports
     	marks whether only exported nodes are shown
   	-file string
-    	file to parse on, relative to $GOPATH/src
-    	(default "github.com/firegoblin/golangTypeGraph")
+    	file to parse on, relative to $GOPATH/src (default "github.com/firegoblin/golangTypeGraph")
   	-imax int
-    	the maximum number of structs implementing an interface before edges 
-    	are not drawn (default 9)
+    	the maximum number of structs implementing an interface before edges are not drawn (default 9)
   	-pkg string
-    	the package that will not have its types prefiexed with package name 
-    	(default "main")
+    	the package that will not have its types prefiexed with package name (default "main")
   	-test
     	whether or not to include test files in the graph
 
@@ -58,13 +56,13 @@ assumptions for target dir:
 
 	Compiles
 	Expects dir to be in $GOPATH/src (unless -env is set, then checks in in $<env>/src)
-	Assumes default golang style import folders (no )
+	Assumes default golang style import folders
 	Does not use import . or renaming
 
 workarounds:
 
 	Repeat definitions are ignored (temporary workaround for OS specific files)
-	Error handling added to ignore unexpected case to not completely crash
+	Error handling added to protect against crashes on unexpected cases
 
 
 flag ideas:
@@ -78,14 +76,6 @@ future improvements:
 
 	Add connections to functions, partiularly interfaces to functions they're used in
 	Add tests to allow safer changes.
+	Print the string to a file instead of piping
 	Better attributes, especially to ensure a less cluttered layout.
-
-
-known bug:
-
-	Functions may display params/results with or without pkg name indeterminately.
-
-
-possible untested issues:
-
-	May have issues with elaborate types such as complex func types
+	Seperate ast_helper into on package as contains some useful general AST functions.

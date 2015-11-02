@@ -40,21 +40,22 @@ var builtinTypes = [...]string{"bool", "byte", "complex64", "complex128", "error
 	"int", "int8", "int16", "int32", "int64",
 	"rune", "string", "uint", "uint8", "uint16", "uint32", "uint64", "uintptr"}
 
+func isBuiltinType(s string) bool {
+	for _, v := range builtinTypes {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
 func (b baseType) stringRelativePkg(pkg string) string {
 	retval := b.pkgName
 	if retval == pkg {
 		retval = ""
 	}
 
-	found := false
-	for _, v := range builtinTypes {
-		if v == retval {
-			found = true
-			break
-		}
-	}
-
-	if found {
+	if isBuiltinType(retval) {
 		retval = ""
 	}
 

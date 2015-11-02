@@ -55,6 +55,15 @@ func (s *structNode) Attrs() gographviz.Attrs {
 	return retval
 }
 
+func containsNode(list []gographviz.GraphableNode, g gographviz.GraphableNode) bool {
+	for _, v := range list {
+		if g == v {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *structNode) Edges() []*gographviz.Edge {
 	parentEdge := s.parentEdge()
 	var retval []*gographviz.Edge
@@ -80,14 +89,7 @@ func (s *structNode) Edges() []*gographviz.Edge {
 		}
 		if holder != nil {
 			//avoid duplicates
-			found := false
-			for _, v := range fieldList {
-				if holder == v {
-					found = true
-					break
-				}
-			}
-			if !found && holder != nil {
+			if !containsNode(fieldList, holder) {
 				retval = append(retval, &gographviz.Edge{holder.Name(), "", s.Name(), "", true, fieldAttrs()})
 				fieldList = append(fieldList, holder)
 			}
@@ -181,21 +183,7 @@ func (s *structNode) implementsInterface(i *interfaceNode) bool {
 	required := i.allRequiredFunctions()
 	have := s.allreceiverFunctions()
 
-	for _, v := range required {
-		found := false
-		for _, j := range have {
-			if j == v {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			return false
-		}
-	}
-
-	return true
+	return containsAll(have, required)
 }
 
 func (s *structNode) setInterfacesImplemented(i []*interfaceNode) {

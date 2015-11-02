@@ -66,6 +66,15 @@ func legalFile(f os.FileInfo) bool {
 	return !strings.Contains(f.Name(), "_test.go")
 }
 
+func containsString(list []string, s string) bool {
+	for _, v := range list {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
 	flag.Parse()
 
@@ -87,9 +96,6 @@ func main() {
 	depth = append(depth, 0)
 
 	var searchedDirectories []string
-
-	//adding os as it does not work with what seems like duplicate types
-	searchedDirectories = append(searchedDirectories, "os")
 
 	for len(directories) > 0 {
 		if *includeTestFiles {
@@ -122,20 +128,8 @@ func main() {
 				if dep < *maxDepth {
 					for _, impor := range file.Imports {
 						importName := strings.Trim(impor.Path.Value, "\"")
-						found := false
-						for _, v := range searchedDirectories {
-							if v == importName {
-								found = true
-								break
-							}
-						}
-						for _, v := range directories {
-							if v == importName || found {
-								found = true
-								break
-							}
-						}
-						if !found {
+
+						if !containsString(searchedDirectories, importName) && !containsString(directories, importName) {
 							depth = append(depth, dep+1)
 							directories = append(directories, importName)
 						}
