@@ -1,6 +1,6 @@
 <h1>golangTypeGraph</h1>
 
-Description:
+<h3>Description</h3>
 
 	Outputs a graphviz compatible .dot file that is a graph of the connections of
 	different types in the target dir. Uses the fork github.com/firegoblin/gographviz
@@ -8,19 +8,19 @@ Description:
 	The fork adds an interface for GraphableNode and functions upon it to work with
 	the program.  Uses go/ast and go/parser extensively for parsing the target dir.
 
-Basic Installation:
+<h3>Basic Installation</h3>
 
 	brew install graphviz (or visit http://www.graphviz.org/ for other options)
 
 	go get github.com/firegoblin/golangTypeGraph
 	go install github.com/firegoblin/golangTypeGraph
 
-Basic Usage:
+<h3>Basic Usage</h3>
 
 	golangTypeGraph github.com/UserName/TargetDir > output.dot
 	dot -Tpng output.dot > output.png
 
-Connections:
+<h3>Connections</h3>
 
 	Struct -> Struct:
 		parent
@@ -32,7 +32,7 @@ Connections:
 		inherited
 		field
 
-Flags for golangTypeGraph:
+<h3>Flags for golangTypeGraph</h3>
 
   	-depth int
     	maximum depth of recursively searching imports (default 1)
@@ -54,27 +54,27 @@ Flags for golangTypeGraph:
     	whether or not to include test files in the graph
 
 
-assumptions for target dir:
+<h3>assumptions for target dir</h3>
 
 	Compiles
 	Expects dir to be in $GOPATH/src (unless -env is set, then checks in in $<env>/src)
 	Assumes default golang style import folders
 	Does not use import . or renaming
 
-workarounds:
+<h3>workarounds</h3>
 
 	Repeat definitions are ignored (temporary workaround for OS specific files)
 	Error handling added to protect against crashes on unexpected cases
 
 
-flag ideas:
+<h3>flag ideas</h3>
 
 	Output file flag
 	Perform the dot command for conversion to graphics file types through the program
 	Modify verbosity of nodes
 
 
-future improvements:
+<h3>future improvements</h3>
 
 	Add connections to functions, partiularly interfaces to functions they're used in
 	Add tests to allow safer changes.
