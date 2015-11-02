@@ -46,6 +46,8 @@ Flags for golangTypeGraph:
     	file to parse on, relative to $GOPATH/src (default "github.com/firegoblin/golangTypeGraph")
   	-imax int
     	the maximum number of structs implementing an interface before edges are not drawn (default 9)
+    -json
+    	include tags for struct fields in print out
   	-pkg string
     	the package that will not have its types prefiexed with package name (default "main")
   	-test

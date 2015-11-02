@@ -19,6 +19,7 @@ var implementMax = flag.Int("imax", 9, "the maximum number of structs implementi
 var envVar = flag.String("env", "GOPATH", "environment variable to use instead of GOPATH")
 var maxDepth = flag.Int("depth", 1, "maximum depth of recursively searching imports")
 var edgelessNodes = flag.Bool("edgeless", true, "include nodes that have no edges connected to them")
+var json = flag.Bool("json", false, "include tags for struct fields in print out")
 
 //var operatingSystem = flag.String("os", "linux", "define the os to use when choosing os specific files")
 //var operatingArchitecture = flag.String("arch", "amd64", "define the architecture to use when choosing os specific files")
