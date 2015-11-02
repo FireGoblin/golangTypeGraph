@@ -97,6 +97,35 @@ func containsString(list []string, s string) bool {
 	return false
 }
 
+func replaceSEL(s string) string {
+	return strings.Replace(s, "_SEL_", "\\.", -1)
+}
+
+func createDOT(interfaceList []*interfaceNode, structList []*structNode) string {
+	g := gographviz.NewGraph()
+	g.SetName((*filename)[strings.LastIndex(*filename, "/")+1:])
+	g.SetDir(true)
+	for _, s := range structList {
+		g.AddGraphableNode(g.Name, s)
+	}
+	for _, i := range interfaceList {
+		g.AddGraphableNode(g.Name, i)
+	}
+	if !*edgelessNodes {
+		edges := g.RemoveEdgelessNodes(g.Name)
+		if len(edges) > 0 {
+			str := "\"Edgeless nodes removed: "
+			for _, v := range edges {
+				str += replaceSEL(v) + ", "
+			}
+			str = str[:len(str)-2]
+			str += "\""
+			g.AddAttr(g.Name, "label", str)
+		}
+	}
+	return g.String()
+}
+
 func main() {
 	flag.Parse()
 
@@ -185,20 +214,7 @@ func main() {
 		i.setImplementedBy(structList)
 	}
 
-	//Create the graph and print it out
-	g := gographviz.NewGraph()
-	g.SetName((*filename)[strings.LastIndex(*filename, "/")+1:])
-	g.SetDir(true)
-	for _, s := range structList {
-		g.AddGraphableNode("G", s)
-	}
-	for _, i := range interfaceList {
-		g.AddGraphableNode("G", i)
-	}
-	if !*edgelessNodes {
-		fmt.Fprintln(os.Stderr, "removing edgeless nodes")
-		g.RemoveEdgelessNodes("G")
-	}
-	s := g.String()
+	//Create the dot graph and print it out
+	s := createDOT(interfaceList, structList)
 	fmt.Println(s)
 }

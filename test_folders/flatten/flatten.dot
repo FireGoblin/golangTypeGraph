@@ -1,0 +1,7 @@
+digraph flatten {
+	flatten_SEL_OneWay->flatten_SEL_Interface[ label=implements, style=bold ];
+	flatten_SEL_Interface [ label="{flatten.Interface||Sum(int, int) int\lSumString(string, string) string\l}", shape=Mrecord ];
+	flatten_SEL_OneWay [ label="{flatten.OneWay|i int\ls string\l|Sum(int, int) int\lSumString(string, string) string\l}", shape=record ];
+
+}
+

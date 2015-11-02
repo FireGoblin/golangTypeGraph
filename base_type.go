@@ -24,13 +24,16 @@ func (b *baseType) addNode(n gographviz.GraphableNode) {
 	b.node = n
 }
 
+//used to replace . which doesn't work for a dot graph node name
+const periodReplacement = "_SEL_"
+
 //Name is safe for use in graph
 func (b baseType) Name() string {
 	retval := b.pkgName
 	if retval == *defaultPackageName {
 		retval = ""
 	} else if retval != "" {
-		retval += "_SEL_"
+		retval += periodReplacement
 	}
 	retval += gographviz.SafeName(b.name)
 	return retval
