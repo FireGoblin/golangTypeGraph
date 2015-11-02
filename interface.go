@@ -60,6 +60,10 @@ func (i *interfaceNode) Edges() []*gographviz.Edge {
 			retval = append(retval, &gographviz.Edge{v.Name(), "", i.Name(), "", true, i.implementedAttrs()})
 		}
 	}
+	//add invisible self edge if it is is highly implemented to prevent removal from graph of important node
+	if i.highlyImplemented() && len(retval) == 0 {
+		retval = append(retval, &gographviz.Edge{i.Name(), "", i.Name(), "", true, i.implementedAttrs()})
+	}
 
 	return retval
 }
