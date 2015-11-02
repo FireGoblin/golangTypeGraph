@@ -36,8 +36,8 @@ func newUnknown(source *structNode, b *baseType) *unknownNode {
 	return retval
 }
 
-func (s *unknownNode) addFunction(f *function, field *ast.Field) {
-	s.receiverFunctions = append(s.receiverFunctions, newReceiverFunction(f, field))
+func (u *unknownNode) addFunction(f *function, field *ast.Field) {
+	u.receiverFunctions = append(u.receiverFunctions, newReceiverFunction(f, field))
 	f.isReceiver = true
 }
 
