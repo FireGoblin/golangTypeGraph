@@ -59,11 +59,33 @@ func processTypeDecl(obj *ast.Object, typ *Type, structList *[]*structNode, inte
 	}
 }
 
+func processFuncDecl(decl ast.Decl) {
+	switch d := decl.(type) {
+	case *ast.FuncDecl:
+		f := funcMap.lookupOrAddFromExpr(d.Name.Name, d.Type)
+		//funcList = append(funcList, f)
+		if d.Recv != nil {
+			recv := typeMap.lookupOrAddFromExpr(d.Recv.List[0].Type).base.node
+			if recv != nil {
+				//fmt.Println(d.Recv.List[0])
+				switch r := recv.(type) {
+				case *structNode:
+					r.addFunction(f, d.Recv.List[0])
+				case *unknownNode:
+					r.addFunction(f, d.Recv.List[0])
+				default:
+					panic("trying to add receiver to interface")
+				}
+			}
+		}
+	}
+}
+
 //var osVar = [...]string{"freebsd", "windows", "linux", "dragonfly", "openbsd", "netbsd", "darwin", "plan9", "solaris", "nacl"}
 //var arch = [...]string{"386", "amd64", "arm"}
 
 func legalFile(f os.FileInfo) bool {
-	return !strings.Contains(f.Name(), "_test.go")
+	return *includeTestFiles || !strings.Contains(f.Name(), "_test.go")
 }
 
 func containsString(list []string, s string) bool {
@@ -78,7 +100,6 @@ func containsString(list []string, s string) bool {
 func main() {
 	flag.Parse()
 
-	//initialize master map with builtin types
 	fset := token.NewFileSet()
 
 	var pkgs map[string]*ast.Package
@@ -97,25 +118,24 @@ func main() {
 
 	var searchedDirectories []string
 
+	//loop until directories to search is empty
 	for len(directories) > 0 {
-		if *includeTestFiles {
-			pkgs, err = parser.ParseDir(fset, gopath+directories[len(directories)-1], nil, 0)
-		} else {
-			pkgs, err = parser.ParseDir(fset, gopath+directories[len(directories)-1], legalFile, 0)
-		}
+		pkgs, err = parser.ParseDir(fset, gopath+directories[len(directories)-1], legalFile, 0)
 
-		dep := depth[len(depth)-1]
+		//dep is used to
+		currentDepth := depth[len(depth)-1]
 		searchedDirectories = append(searchedDirectories, directories[len(directories)-1])
 
 		depth = depth[:len(depth)-1]
 		directories = directories[:len(directories)-1]
 
+		//skip this folder if there was an error parsing, usually meaning the directory is not found
 		if err != nil {
 			continue
 		}
 
-		//TODO: fix for multiple packages
 		for _, pkg := range pkgs {
+			//remove unexported types/functions if onlyExports
 			if *onlyExports {
 				hasExports := ast.PackageExports(pkg)
 				if !hasExports {
@@ -123,14 +143,15 @@ func main() {
 				}
 			}
 			typeMap.currentPkg = pkg.Name
+
 			for _, file := range pkg.Files {
-				//add imports to directories to check
-				if dep < *maxDepth {
+				//add imports to directories to check if not at maxDepth yet
+				if currentDepth < *maxDepth {
 					for _, impor := range file.Imports {
 						importName := strings.Trim(impor.Path.Value, "\"")
 
 						if !containsString(searchedDirectories, importName) && !containsString(directories, importName) {
-							depth = append(depth, dep+1)
+							depth = append(depth, currentDepth+1)
 							directories = append(directories, importName)
 						}
 					}
@@ -153,34 +174,18 @@ func main() {
 
 				//processes all the function declarations
 				for _, decl := range file.Decls {
-					switch d := decl.(type) {
-					case *ast.FuncDecl:
-						f := funcMap.lookupOrAddFromExpr(d.Name.Name, d.Type)
-						//funcList = append(funcList, f)
-						if d.Recv != nil {
-							recv := typeMap.lookupOrAddFromExpr(d.Recv.List[0].Type).base.node
-							if recv != nil {
-								//fmt.Println(d.Recv.List[0])
-								switch r := recv.(type) {
-								case *structNode:
-									r.addFunction(f, d.Recv.List[0])
-								case *unknownNode:
-									r.addFunction(f, d.Recv.List[0])
-								default:
-									panic("trying to add receiver to interface")
-								}
-							}
-						}
-					}
+					processFuncDecl(decl)
 				}
 			}
 		}
 	}
 
+	//set all interfaces' implementedByCache
 	for _, i := range interfaceList {
 		i.setImplementedBy(structList)
 	}
 
+	//Create the graph and print it out
 	g := gographviz.NewGraph()
 	g.SetName((*filename)[strings.LastIndex(*filename, "/")+1:])
 	g.SetDir(true)
